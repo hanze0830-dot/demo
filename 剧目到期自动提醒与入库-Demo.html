@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>剧目到期自动提醒 — 交互 Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #eef1f5; color: #333; font-size: 14px; }
+        .topbar { background: #fff; border-bottom: 1px solid #ddd; padding: 0 20px; height: 44px; display: flex; align-items: center; gap: 12px; }
+        .topbar-tab { background: #4a6cf7; color: #fff; padding: 4px 14px; border-radius: 4px; font-size: 13px; font-weight: 600; }
+        .topbar-crumb { font-size: 13px; color: #999; }
+        .page { max-width: 1100px; margin: 20px auto; padding: 0 20px; }
+
+        /* tabs */
+        .tab-bar { display: flex; gap: 0; margin-bottom: 0; }
+        .tab { padding: 10px 24px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid #ddd; border-bottom: none; border-radius: 6px 6px 0 0; background: #f4f5f7; color: #888; margin-right: -1px; }
+        .tab.active { background: #fff; color: #333; font-weight: 600; border-bottom: 1px solid #fff; position: relative; z-index: 1; }
+
+        .panel { background: #fff; border: 1px solid #ddd; border-radius: 0 6px 6px 6px; padding: 28px 32px; }
+        .section-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px; }
+
+        /* form */
+        .form-row { display: flex; align-items: flex-start; margin-bottom: 14px; gap: 12px; }
+        .form-label { font-size: 13px; color: #555; font-weight: 500; min-width: 120px; text-align: right; padding-top: 7px; }
+        .form-body { flex: 1; }
+        .form-input { width: 100%; max-width: 280px; height: 34px; border: 1px solid #d0d0d0; border-radius: 4px; padding: 0 10px; font-size: 13px; color: #333; outline: none; }
+        .form-input:focus { border-color: #4a6cf7; }
+        .form-hint { font-size: 11px; color: #bbb; margin-top: 3px; }
+
+        /* result card */
+        .result-card { background: #f0f4ff; border: 1px solid #d0dffc; border-radius: 8px; padding: 20px 24px; margin-top: 20px; }
+        .result-title { font-size: 14px; font-weight: 600; color: #4a6cf7; margin-bottom: 12px; }
+        .result-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 13px; }
+        .result-label { color: #888; min-width: 130px; }
+        .result-value { color: #333; font-weight: 500; }
+        .result-value.highlight { color: #4a6cf7; font-weight: 700; font-size: 15px; }
+        .formula-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 14px 18px; margin-top: 12px; font-family: "SFMono-Regular", Consolas, monospace; font-size: 13px; color: #555; line-height: 1.8; }
+        .formula-box .winner { color: #4a6cf7; font-weight: 700; }
+        .formula-box .loser { color: #bbb; }
+
+        /* timeline */
+        .timeline { margin-top: 20px; }
+        .tl-item { display: flex; align-items: flex-start; margin-bottom: 0; position: relative; }
+        .tl-dot-col { width: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+        .tl-dot { width: 14px; height: 14px; border-radius: 50%; border: 3px solid #4a6cf7; background: #fff; z-index: 1; flex-shrink: 0; }
+        .tl-dot.active { background: #4a6cf7; }
+        .tl-dot.archive { border-color: #e74c3c; background: #e74c3c; }
+        .tl-line { width: 2px; background: #d0dffc; flex: 1; min-height: 28px; }
+        .tl-content { flex: 1; padding: 0 0 20px 8px; }
+        .tl-date { font-size: 12px; color: #999; margin-bottom: 2px; }
+        .tl-label { font-size: 13px; font-weight: 600; color: #333; }
+        .tl-label.archive { color: #e74c3c; }
+        .tl-desc { font-size: 12px; color: #888; margin-top: 2px; }
+
+        /* dingtalk markdown message preview */
+        .ding-msg { max-width: 480px; margin-top: 16px; display: flex; gap: 10px; align-items: flex-start; }
+        .ding-avatar { width: 36px; height: 36px; border-radius: 6px; background: #3296fa; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+        .ding-bubble { background: #fff; border: 1px solid #e8e8e8; border-radius: 0 10px 10px 10px; padding: 14px 16px; flex: 1; font-size: 13px; line-height: 1.7; color: #333; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .ding-bubble h3 { font-size: 15px; font-weight: 700; color: #333; margin: 0 0 8px; }
+        .ding-bubble p { margin: 4px 0; font-size: 13px; color: #555; }
+        .ding-bubble table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12px; }
+        .ding-bubble table th { background: #f5f5f5; border: 1px solid #e0e0e0; padding: 4px 8px; font-weight: 600; color: #666; text-align: left; }
+        .ding-bubble table td { border: 1px solid #e0e0e0; padding: 4px 8px; color: #333; }
+        .ding-bubble .ding-at { color: #3296fa; font-size: 13px; margin-top: 8px; }
+        .ding-bubble .ding-sep { border: none; border-top: 1px solid #eee; margin: 8px 0; }
+        .ding-sender { font-size: 12px; color: #999; margin-bottom: 4px; }
+
+        /* drama list table */
+        .drama-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+        .drama-table th { background: #f4f5f7; border: 1px solid #d0d4d8; padding: 8px 10px; font-weight: 600; color: #666; text-align: left; }
+        .drama-table td { border: 1px solid #d0d4d8; padding: 8px 10px; color: #555; }
+        .status-badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; }
+        .status-online { background: #e8f5e9; color: #2e7d32; }
+        .status-archived { background: #f5f5f5; color: #999; }
+        .status-warning { background: #fff3e0; color: #e65100; }
+        .days-tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+        .days-danger { background: #fff1f0; color: #e74c3c; }
+        .days-warn { background: #fff8e1; color: #f57f17; }
+        .days-safe { background: #e8f5e9; color: #2e7d32; }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; padding: 0 20px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid; }
+        .btn-primary { background: #4a6cf7; color: #fff; border-color: #4a6cf7; }
+        .btn-primary:hover { background: #3a5ce5; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <span class="topbar-tab">中台管理</span>
+    <span class="topbar-crumb">剧目管理</span>
+    <span class="topbar-crumb">›</span>
+    <span class="topbar-crumb" style="color:#333;">到期自动提醒</span>
+</div>
+
+<div class="page">
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+        <div class="tab active" onclick="switchTab('calc')">到期时间计算</div>
+        <div class="tab" onclick="switchTab('remind')">提醒消息预览</div>
+        <div class="tab" onclick="switchTab('archive')">到期自动入库</div>
+    </div>
+
+    <!-- ========== Tab 1: 到期时间计算 ========== -->
+    <div class="panel" id="tab-calc">
+        <div class="section-title">到期时间计算器</div>
+        <p style="font-size:13px; color:#888; margin-bottom:20px;">输入合同和上架信息，自动计算有效到期时间</p>
+
+        <div class="form-row">
+            <div class="form-label">CP合同开始时间</div>
+            <div class="form-body">
+                <input type="date" class="form-input" id="contractStart" value="2024-01-01">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">CP合同到期时间</div>
+            <div class="form-body">
+                <input type="date" class="form-input" id="contractEnd" value="2026-12-31">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-label">首次上架时间</div>
+            <div class="form-body">
+                <input type="date" class="form-input" id="firstOnline" value="2025-06-15">
+                <div class="form-hint">若未上架则留空，直接取合同到期时间</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 16px;">
+            <button class="btn btn-primary" onclick="calculate()">计算有效到期时间</button>
+        </div>
+
+        <div class="result-card" id="resultCard" style="display:none;">
+            <div class="result-title">计算结果</div>
+            <div class="result-row">
+                <span class="result-label">time1（合同到期）</span>
+                <span class="result-value" id="resTime1"></span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">合同有效期</span>
+                <span class="result-value" id="resDuration"></span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">time2（上架+有效期）</span>
+                <span class="result-value" id="resTime2"></span>
+            </div>
+            <div class="result-row" style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #d0dffc;">
+                <span class="result-label">有效到期时间</span>
+                <span class="result-value highlight" id="resExpiry"></span>
+            </div>
+            <div class="formula-box" id="formulaBox"></div>
+
+            <!-- timeline -->
+            <div class="section-title" style="margin-top: 24px;">提醒时间线</div>
+            <div class="timeline" id="timeline"></div>
+        </div>
+    </div>
+
+    <!-- ========== Tab 2: 提醒消息预览 ========== -->
+    <div class="panel" id="tab-remind" style="display:none;">
+        <div class="section-title">钉钉提醒消息预览</div>
+        <p style="font-size:13px; color:#888; margin-bottom:8px;">以下为各提醒节点的钉钉群 Markdown 消息实际渲染效果</p>
+        <p style="font-size:11px; color:#bbb; margin-bottom:20px;">钉钉机器人仅支持 Markdown 格式，包括加粗、表格、@人等，不支持 HTML 富文本卡片</p>
+
+        <!-- D-30 -->
+        <div style="margin-bottom: 28px;">
+            <div style="font-size: 12px; color: #999; margin-bottom: 6px;">D-30 提醒（合并多部剧目）</div>
+            <div class="ding-msg">
+                <div class="ding-avatar">叮</div>
+                <div>
+                    <div class="ding-sender">剧目到期提醒机器人</div>
+                    <div class="ding-bubble">
+                        <h3>剧目到期提醒 — 30天预警</h3>
+                        <p>以下剧目将在 <strong>30 天</strong>内到期，请及时安排续约或下架：</p>
+                        <table>
+                            <thead><tr><th>剧目名称</th><th>ID</th><th>CP</th><th>到期时间</th><th>剩余</th></tr></thead>
+                            <tbody>
+                                <tr><td>甜蜜陷阱</td><td>10234</td><td>星辰影视</td><td>2026-07-24</td><td><strong>30天</strong></td></tr>
+                                <tr><td>逆袭人生</td><td>10567</td><td>华创传媒</td><td>2026-07-24</td><td><strong>30天</strong></td></tr>
+                            </tbody>
+                        </table>
+                        <div class="ding-at">@张三 @李四</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- D-3 -->
+        <div style="margin-bottom: 28px;">
+            <div style="font-size: 12px; color: #999; margin-bottom: 6px;">D-3 紧急提醒</div>
+            <div class="ding-msg">
+                <div class="ding-avatar">叮</div>
+                <div>
+                    <div class="ding-sender">剧目到期提醒机器人</div>
+                    <div class="ding-bubble">
+                        <h3>剧目到期紧急提醒 — 3天</h3>
+                        <p>以下剧目将在 <strong>3 天</strong>内到期，请<strong>立即处理</strong>：</p>
+                        <table>
+                            <thead><tr><th>剧目名称</th><th>ID</th><th>CP</th><th>到期时间</th><th>剩余</th></tr></thead>
+                            <tbody>
+                                <tr><td>甜蜜陷阱</td><td>10234</td><td>星辰影视</td><td>2026-07-24</td><td><strong>3天</strong></td></tr>
+                            </tbody>
+                        </table>
+                        <div class="ding-at">@张三 @李四</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- D-1 -->
+        <div style="margin-bottom: 28px;">
+            <div style="font-size: 12px; color: #999; margin-bottom: 6px;">D-1 最后一天提醒</div>
+            <div class="ding-msg">
+                <div class="ding-avatar">叮</div>
+                <div>
+                    <div class="ding-sender">剧目到期提醒机器人</div>
+                    <div class="ding-bubble">
+                        <h3>剧目明日到期 — 最后提醒</h3>
+                        <p>以下剧目将于<strong>明日到期</strong>，届时系统将自动执行入库操作：</p>
+                        <table>
+                            <thead><tr><th>剧目名称</th><th>ID</th><th>CP</th><th>到期时间</th><th>剩余</th></tr></thead>
+                            <tbody>
+                                <tr><td>甜蜜陷阱</td><td>10234</td><td>星辰影视</td><td>2026-07-24</td><td><strong>1天</strong></td></tr>
+                            </tbody>
+                        </table>
+                        <div class="ding-at">@张三 @李四</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 入库通知 -->
+        <div style="margin-bottom: 28px;">
+            <div style="font-size: 12px; color: #999; margin-bottom: 6px;">到期自动入库通知</div>
+            <div class="ding-msg">
+                <div class="ding-avatar">叮</div>
+                <div>
+                    <div class="ding-sender">剧目到期提醒机器人</div>
+                    <div class="ding-bubble">
+                        <h3>剧目已自动入库</h3>
+                        <p>以下剧目已到期，系统已自动将上架状态切换为<strong>「入库」</strong>：</p>
+                        <table>
+                            <thead><tr><th>剧目名称</th><th>ID</th><th>CP</th><th>到期时间</th><th>操作结果</th></tr></thead>
+                            <tbody>
+                                <tr><td>甜蜜陷阱</td><td>10234</td><td>星辰影视</td><td>2026-07-24</td><td><strong>已自动入库</strong></td></tr>
+                            </tbody>
+                        </table>
+                        <div class="ding-at">@张三 @李四</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== Tab 3: 到期自动入库 ========== -->
+    <div class="panel" id="tab-archive" style="display:none;">
+        <div class="section-title">剧目到期状态概览</div>
+        <p style="font-size:13px; color:#888; margin-bottom:16px;">模拟展示剧目列表到期后自动入库的状态变化</p>
+
+        <table class="drama-table" id="dramaTable">
+            <thead>
+                <tr>
+                    <th>剧目ID</th>
+                    <th>剧目名称</th>
+                    <th>CP</th>
+                    <th>有效到期时间</th>
+                    <th>剩余天数</th>
+                    <th>上架状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div style="margin-top: 16px; display: flex; gap: 10px;">
+            <button class="btn btn-primary" onclick="simulateArchive()">模拟到期入库</button>
+            <button class="btn" style="background:#fff; color:#555; border-color:#ddd;" onclick="resetDramas()">重置</button>
+        </div>
+
+        <div id="archiveLog" style="margin-top: 16px;"></div>
+    </div>
+
+</div>
+
+<script>
+// ===== Tab switch =====
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((el, i) => {
+        const tabs = ['calc', 'remind', 'archive'];
+        el.classList.toggle('active', tabs[i] === tab);
+    });
+    ['calc', 'remind', 'archive'].forEach(t => {
+        document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+    });
+}
+
+// ===== Tab 1: Calculator =====
+function calculate() {
+    const csVal = document.getElementById('contractStart').value;
+    const ceVal = document.getElementById('contractEnd').value;
+    const foVal = document.getElementById('firstOnline').value;
+
+    if (!csVal || !ceVal) { alert('请填写合同开始和到期时间'); return; }
+
+    const cs = new Date(csVal);
+    const ce = new Date(ceVal);
+    const time1 = ce;
+
+    let time2 = null;
+    let durationDays = Math.round((ce - cs) / 86400000);
+
+    if (foVal) {
+        const fo = new Date(foVal);
+        time2 = new Date(fo.getTime() + (ce - cs));
+    }
+
+    const expiry = time2 && time2 > time1 ? time2 : time1;
+    const winner = time2 && time2 > time1 ? 'time2' : 'time1';
+
+    document.getElementById('resTime1').textContent = fmt(time1);
+    document.getElementById('resDuration').textContent = durationDays + ' 天（' + Math.round(durationDays / 365 * 10) / 10 + ' 年）';
+    document.getElementById('resTime2').textContent = time2 ? fmt(time2) : '—（未上架）';
+    document.getElementById('resExpiry').textContent = fmt(expiry);
+
+    document.getElementById('formulaBox').innerHTML =
+        '<span class="' + (winner === 'time1' ? 'winner' : 'loser') + '">time1 = CP合同到期时间 = ' + fmt(time1) + '</span><br>' +
+        (time2
+            ? '<span class="' + (winner === 'time2' ? 'winner' : 'loser') + '">time2 = ' + fmt(new Date(foVal)) + ' + ' + durationDays + '天 = ' + fmt(time2) + '</span><br>'
+            : '<span class="loser">time2 = 未上架，不参与比较</span><br>') +
+        '<br><strong>有效到期时间 = max(time1, time2) = <span class="winner">' + fmt(expiry) + '</span></strong>';
+
+    // Timeline
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const remindDays = [30, 14, 7, 3, 1];
+    const remindLabels = ['首次提醒（D-30）', '两周提醒（D-14）', '一周提醒（D-7）', '紧急提醒（D-3）', '最后提醒（D-1）'];
+    let html = '';
+    remindDays.forEach((d, i) => {
+        const rDate = new Date(expiry.getTime() - d * 86400000);
+        const isPast = rDate <= today;
+        const isLast = i === remindDays.length - 1;
+        html += '<div class="tl-item">' +
+            '<div class="tl-dot-col"><span class="tl-dot' + (isPast ? ' active' : '') + '"></span>' + (isLast ? '' : '<span class="tl-line"></span>') + '</div>' +
+            '<div class="tl-content"><div class="tl-date">' + fmt(rDate) + (isPast ? ' <span style="color:#4a6cf7;">（已过）</span>' : '') + '</div>' +
+            '<div class="tl-label">' + remindLabels[i] + '</div>' +
+            '<div class="tl-desc">钉钉群@指定人员，发送到期预警消息</div></div></div>';
+    });
+    // archive node
+    html += '<div class="tl-item"><div class="tl-dot-col"><span class="tl-dot archive"></span></div>' +
+        '<div class="tl-content"><div class="tl-date">' + fmt(expiry) + '</div>' +
+        '<div class="tl-label archive">到期日 — 系统自动入库</div>' +
+        '<div class="tl-desc">上架状态自动切换为「入库」，发送入库通知</div></div></div>';
+
+    document.getElementById('timeline').innerHTML = html;
+    document.getElementById('resultCard').style.display = 'block';
+}
+
+function fmt(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+// ===== Tab 3: Drama list =====
+const dramas = [
+    { id: 10234, name: '甜蜜陷阱', cp: '星辰影视', expiry: '2026-06-24', status: 'online' },
+    { id: 10567, name: '逆袭人生', cp: '华创传媒', expiry: '2026-07-08', status: 'online' },
+    { id: 10891, name: '破晓之光', cp: '银河娱乐', expiry: '2026-07-21', status: 'online' },
+    { id: 11023, name: '都市密码', cp: '锐目文化', expiry: '2026-08-15', status: 'online' },
+    { id: 11245, name: '命运交响曲', cp: '蓝焰影业', expiry: '2026-09-30', status: 'online' },
+];
+
+function renderDramas() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const tbody = document.querySelector('#dramaTable tbody');
+    tbody.innerHTML = '';
+    dramas.forEach(d => {
+        const exp = new Date(d.expiry); exp.setHours(0,0,0,0);
+        const diff = Math.ceil((exp - today) / 86400000);
+        let daysHtml = '', statusHtml = '';
+        if (d.status === 'archived') {
+            daysHtml = '<span class="days-tag" style="background:#f5f5f5;color:#999;">已到期</span>';
+            statusHtml = '<span class="status-badge status-archived">入库</span>';
+        } else if (diff <= 0) {
+            daysHtml = '<span class="days-tag days-danger">已到期</span>';
+            statusHtml = '<span class="status-badge status-warning">上架中（待入库）</span>';
+        } else if (diff <= 7) {
+            daysHtml = '<span class="days-tag days-danger">' + diff + '天</span>';
+            statusHtml = '<span class="status-badge status-online">上架中</span>';
+        } else if (diff <= 30) {
+            daysHtml = '<span class="days-tag days-warn">' + diff + '天</span>';
+            statusHtml = '<span class="status-badge status-online">上架中</span>';
+        } else {
+            daysHtml = '<span class="days-tag days-safe">' + diff + '天</span>';
+            statusHtml = '<span class="status-badge status-online">上架中</span>';
+        }
+        tbody.innerHTML += '<tr><td>' + d.id + '</td><td>' + d.name + '</td><td>' + d.cp + '</td><td>' + d.expiry + '</td><td>' + daysHtml + '</td><td>' + statusHtml + '</td><td>' + (d.status === 'archived' ? '<span style="color:#999;font-size:12px;">已入库</span>' : '<span style="color:#4a6cf7;font-size:12px;cursor:pointer;" onclick="manualArchive(' + d.id + ')">手动入库</span>') + '</td></tr>';
+    });
+}
+
+function simulateArchive() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    let archivedNames = [];
+    dramas.forEach(d => {
+        const exp = new Date(d.expiry); exp.setHours(0,0,0,0);
+        if (exp <= today && d.status !== 'archived') {
+            d.status = 'archived';
+            archivedNames.push(d.name + '（' + d.id + '）');
+        }
+    });
+    renderDramas();
+    const log = document.getElementById('archiveLog');
+    if (archivedNames.length > 0) {
+        log.innerHTML = '<div style="background:#fff5f5; border:1px solid #fde8e8; border-radius:6px; padding:12px 16px; font-size:13px;">' +
+            '<strong style="color:#e74c3c;">📦 已自动入库：</strong><br>' +
+            archivedNames.join('<br>') +
+            '<div style="font-size:11px; color:#999; margin-top:6px;">操作人：系统自动 · ' + new Date().toLocaleString() + '</div></div>';
+    } else {
+        log.innerHTML = '<div style="background:#e8f5e9; border:1px solid #a5d6a7; border-radius:6px; padding:12px 16px; font-size:13px; color:#2e7d32;">当前无到期剧目需要入库</div>';
+    }
+}
+
+function manualArchive(id) {
+    const d = dramas.find(x => x.id === id);
+    if (d) { d.status = 'archived'; renderDramas(); }
+}
+
+function resetDramas() {
+    dramas.forEach(d => d.status = 'online');
+    document.getElementById('archiveLog').innerHTML = '';
+    renderDramas();
+}
+
+renderDramas();
+</script>
+
+</body>
+</html>
