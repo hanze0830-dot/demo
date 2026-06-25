@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>译配信息校验开关 — 交互 Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #eef1f5; color: #333; font-size: 14px; }
+
+        /* top bar mimicking the original page */
+        .page-header { background: #fff; border-bottom: 1px solid #ddd; padding: 10px 20px; font-size: 14px; font-weight: 600; color: #333; }
+
+        /* tabs mimicking original */
+        .tab-strip { background: #fff; display: flex; border-bottom: 2px solid #ddd; padding: 0 20px; overflow-x: auto; }
+        .tab-item { padding: 10px 18px; font-size: 13px; color: #666; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .tab-item.active { color: #333; font-weight: 600; border-bottom-color: #4db8c2; }
+        .tab-item.highlight { background: #4db8c2; color: #fff; border-radius: 3px 3px 0 0; font-weight: 600; }
+
+        .page-body { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .panel { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 20px 24px; }
+        .section-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px; }
+
+        /* radio option */
+        .option-bar { display: flex; align-items: center; gap: 24px; margin-bottom: 20px; padding: 12px 16px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e8e8e8; }
+        .option-label { font-size: 13px; font-weight: 600; color: #555; }
+        .radio-group { display: flex; gap: 20px; }
+        .radio-item { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #333; cursor: pointer; }
+        .radio-item input[type="radio"] { accent-color: #4db8c2; }
+        .option-hint { font-size: 11px; color: #999; margin-left: auto; }
+
+        /* new badge */
+        .new-badge { display: inline-block; background: #ff6b6b; color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 600; margin-left: 4px; vertical-align: middle; }
+
+        /* add button */
+        .btn-add { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 14px; background: #4db8c2; color: #fff; border: none; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; margin-bottom: 12px; }
+        .btn-add:hover { background: #3fa8b2; }
+
+        /* toolbar */
+        .toolbar { display: flex; align-items: center; justify-content: flex-end; margin-bottom: 8px; gap: 6px; }
+        .toolbar-btn { width: 28px; height: 28px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 3px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; color: #888; }
+
+        /* table mimicking original */
+        .record-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .record-table th { background: #6b6b6b; color: #fff; border: 1px solid #555; padding: 8px 10px; font-weight: 500; text-align: center; }
+        .record-table td { border: 1px solid #ddd; padding: 8px 10px; text-align: center; color: #555; }
+        .record-table .empty-row td { padding: 20px; color: #999; font-size: 13px; }
+        .record-table tbody tr:hover td { background: #f9f9f9; }
+
+        /* bottom buttons */
+        .form-actions { display: flex; justify-content: center; gap: 12px; margin-top: 20px; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; padding: 0 20px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; gap: 4px; }
+        .btn-cancel { background: #f56c6c; color: #fff; }
+        .btn-cancel:hover { background: #e45a5a; }
+        .btn-submit { background: #67c9d0; color: #fff; }
+        .btn-submit:hover { background: #55b8c0; }
+        .btn-publish { background: #4a6cf7; color: #fff; border: 1px solid #4a6cf7; }
+        .btn-publish:hover { background: #3a5ce5; }
+        .btn-default { background: #fff; color: #555; border: 1px solid #ddd; }
+
+        /* progress bar */
+        .progress-bar { height: 6px; background: #e0e0e0; border-radius: 3px; margin-top: 12px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #4db8c2, #67c9d0); width: 70%; border-radius: 3px; }
+
+        /* modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .modal { background: #fff; border-radius: 10px; width: 480px; max-width: 90vw; box-shadow: 0 8px 32px rgba(0,0,0,0.18); overflow: hidden; }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
+        .modal-title { font-size: 15px; font-weight: 600; color: #333; }
+        .modal-close { border: none; background: none; font-size: 18px; color: #999; cursor: pointer; }
+        .modal-body { padding: 24px 20px; }
+        .modal-footer { padding: 14px 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; }
+
+        /* alert styles */
+        .alert-icon { font-size: 48px; text-align: center; margin-bottom: 16px; }
+        .alert-title { font-size: 16px; font-weight: 600; text-align: center; margin-bottom: 8px; }
+        .alert-msg { font-size: 13px; color: #666; text-align: center; line-height: 1.7; }
+        .alert-error .alert-title { color: #e74c3c; }
+        .alert-success .alert-title { color: #2e7d32; }
+
+        .hidden { display: none !important; }
+
+        /* demo controls */
+        .demo-controls { max-width: 1200px; margin: 0 auto; padding: 16px 20px; }
+        .demo-hint { background: #f0f4ff; border: 1px solid #d0dffc; border-radius: 6px; padding: 12px 16px; font-size: 12px; color: #4a6cf7; display: flex; align-items: flex-start; gap: 8px; line-height: 1.6; }
+        .demo-scenario { margin-top: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .demo-scenario-label { font-size: 13px; font-weight: 500; color: #555; }
+        .demo-scenario select { height: 32px; border: 1px solid #d0d0d0; border-radius: 4px; padding: 0 10px; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<!-- page header -->
+<div class="page-header">修改短剧配置</div>
+
+<!-- tabs -->
+<div class="tab-strip">
+    <div class="tab-item">书籍基本信息</div>
+    <div class="tab-item">书籍分类信息</div>
+    <div class="tab-item">书籍标签3.0</div>
+    <div class="tab-item">短剧剧照</div>
+    <div class="tab-item">标记</div>
+    <div class="tab-item">主分类</div>
+    <div class="tab-item">附件</div>
+    <div class="tab-item">演员配置</div>
+    <div class="tab-item highlight active">译配流程记录</div>
+</div>
+
+<!-- demo controls -->
+<div class="demo-controls">
+    <div class="demo-hint">
+        <strong>Demo 说明：</strong>切换下方场景可模拟不同状态下的上架校验效果。点击「模拟上架」按钮触发校验。
+    </div>
+    <div class="demo-scenario">
+        <span class="demo-scenario-label">模拟场景：</span>
+        <select id="scenarioSelect" onchange="applyScenario()">
+            <option value="empty_require">DB团队 + 需要译配信息 + 无记录（拦截）</option>
+            <option value="has_require">DB团队 + 需要译配信息 + 有记录（通过）</option>
+            <option value="empty_skip">DB团队 + 不需译配信息 + 无记录（通过）</option>
+            <option value="other_team">非DB团队 + 需要译配信息 + 无记录（通过）</option>
+        </select>
+    </div>
+</div>
+
+<!-- page body -->
+<div class="page-body">
+    <div class="panel">
+        <!-- NEW: option bar -->
+        <div class="option-bar">
+            <span class="option-label">译配信息要求 <span class="new-badge">NEW</span></span>
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio" name="dubbingReq" value="require" checked onchange="updateOption()"> 需要译配信息
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="dubbingReq" value="skip" onchange="updateOption()"> 不需译配信息
+                </label>
+            </div>
+            <span class="option-hint" id="optionHint">上架时将校验译配流程记录是否存在</span>
+        </div>
+
+        <!-- add button -->
+        <button class="btn-add" onclick="addRecord()">+ 新增</button>
+
+        <!-- toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-btn">↻</div>
+            <div class="toolbar-btn">⊞</div>
+            <div class="toolbar-btn" style="font-size:10px;">▼</div>
+        </div>
+
+        <!-- table -->
+        <table class="record-table">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>译配需求名称</th>
+                    <th>服务类型</th>
+                    <th>语言对</th>
+                    <th>供应商</th>
+                    <th>译配员</th>
+                    <th>译配员标签</th>
+                    <th>译配模式</th>
+                    <th>特殊属性</th>
+                    <th>验收时长</th>
+                    <th>验收时间</th>
+                    <th>备注</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr class="empty-row"><td colspan="12">没有找到匹配的记录</td></tr>
+            </tbody>
+        </table>
+
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+
+        <!-- bottom actions -->
+        <div class="form-actions">
+            <button class="btn btn-cancel">✏ 取消</button>
+            <button class="btn btn-submit">✔ 提交</button>
+            <button class="btn btn-publish" onclick="tryPublish()">模拟上架</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: block -->
+<div class="modal-overlay hidden" id="modalBlock" onclick="closeModal('modalBlock')">
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <span class="modal-title">上架校验失败</span>
+            <button class="modal-close" onclick="closeModal('modalBlock')">×</button>
+        </div>
+        <div class="modal-body alert-error">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-title">无法上架</div>
+            <div class="alert-msg">该剧目配置为「需要译配信息」，但译配流程记录为空。<br>请先添加译配记录，或将配置修改为「不需译配信息」。</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" onclick="closeModal('modalBlock')">关闭</button>
+            <button class="btn btn-publish" onclick="closeModal('modalBlock');document.querySelector('input[value=skip]').checked=true;updateOption();">改为不需译配信息</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: success -->
+<div class="modal-overlay hidden" id="modalSuccess" onclick="closeModal('modalSuccess')">
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <span class="modal-title">上架校验通过</span>
+            <button class="modal-close" onclick="closeModal('modalSuccess')">×</button>
+        </div>
+        <div class="modal-body alert-success">
+            <div class="alert-icon">✅</div>
+            <div class="alert-title">校验通过</div>
+            <div class="alert-msg" id="successMsg">译配信息校验通过，可以正常上架。</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-submit" onclick="closeModal('modalSuccess')">确定</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let hasRecords = false;
+let isDBTeam = true;
+
+function updateOption() {
+    const val = document.querySelector('input[name="dubbingReq"]:checked').value;
+    const hint = document.getElementById('optionHint');
+    if (val === 'require') {
+        hint.textContent = '上架时将校验译配流程记录是否存在';
+        hint.style.color = '#999';
+    } else {
+        hint.textContent = '上架时跳过译配信息校验';
+        hint.style.color = '#2e7d32';
+    }
+}
+
+function addRecord() {
+    hasRecords = true;
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '<tr>' +
+        '<td>1</td>' +
+        '<td>甜蜜陷阱-西语译配</td>' +
+        '<td>字幕翻译</td>' +
+        '<td>中文→西班牙语</td>' +
+        '<td>星辰翻译</td>' +
+        '<td>Maria Garcia</td>' +
+        '<td>资深</td>' +
+        '<td>人工翻译</td>' +
+        '<td>—</td>' +
+        '<td>3天</td>' +
+        '<td>2026-06-20</td>' +
+        '<td>—</td>' +
+        '</tr>';
+}
+
+function clearRecords() {
+    hasRecords = false;
+    document.getElementById('tableBody').innerHTML = '<tr class="empty-row"><td colspan="12">没有找到匹配的记录</td></tr>';
+}
+
+function applyScenario() {
+    const val = document.getElementById('scenarioSelect').value;
+    switch (val) {
+        case 'empty_require':
+            isDBTeam = true;
+            document.querySelector('input[value="require"]').checked = true;
+            clearRecords();
+            break;
+        case 'has_require':
+            isDBTeam = true;
+            document.querySelector('input[value="require"]').checked = true;
+            addRecord();
+            break;
+        case 'empty_skip':
+            isDBTeam = true;
+            document.querySelector('input[value="skip"]').checked = true;
+            clearRecords();
+            break;
+        case 'other_team':
+            isDBTeam = false;
+            document.querySelector('input[value="require"]').checked = true;
+            clearRecords();
+            break;
+    }
+    updateOption();
+}
+
+function tryPublish() {
+    const requireDubbing = document.querySelector('input[name="dubbingReq"]:checked').value === 'require';
+
+    if (!isDBTeam) {
+        document.getElementById('successMsg').textContent = '非 DB 团队剧目，跳过译配信息校验，可以正常上架。';
+        document.getElementById('modalSuccess').classList.remove('hidden');
+        return;
+    }
+
+    if (!requireDubbing) {
+        document.getElementById('successMsg').textContent = '已配置为「不需译配信息」，跳过校验，可以正常上架。';
+        document.getElementById('modalSuccess').classList.remove('hidden');
+        return;
+    }
+
+    if (!hasRecords) {
+        document.getElementById('modalBlock').classList.remove('hidden');
+        return;
+    }
+
+    document.getElementById('successMsg').textContent = '译配信息校验通过（已有译配记录），可以正常上架。';
+    document.getElementById('modalSuccess').classList.remove('hidden');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
+</script>
+
+</body>
+</html>
