@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>短剧录入表单 — 交互 Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f5f6fa; color: #333; font-size: 14px; }
+
+        .page-header { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 12px 24px; display: flex; align-items: center; gap: 16px; }
+        .page-header h1 { font-size: 16px; font-weight: 600; color: #333; }
+        .page-header .breadcrumb { font-size: 12px; color: #999; }
+
+        .page-body { max-width: 960px; margin: 0 auto; padding: 24px 20px 60px; }
+
+        .section { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+        .section-header { padding: 14px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+        .section-title { font-size: 15px; font-weight: 600; color: #333; }
+        .section-tag { font-size: 11px; background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 3px; font-weight: 500; }
+        .section-body { padding: 20px; }
+
+        .form-row { display: flex; align-items: flex-start; margin-bottom: 18px; }
+        .form-row:last-child { margin-bottom: 0; }
+        .form-label { width: 130px; min-width: 130px; font-size: 13px; color: #555; padding-top: 7px; text-align: right; padding-right: 12px; }
+        .form-label .required { color: #e74c3c; margin-right: 2px; }
+        .form-content { flex: 1; }
+
+        .form-input { width: 100%; height: 34px; border: 1px solid #dcdfe6; border-radius: 4px; padding: 0 12px; font-size: 13px; color: #333; outline: none; transition: border-color .2s; }
+        .form-input:focus { border-color: #409eff; }
+        .form-input::placeholder { color: #c0c4cc; }
+        .form-input.with-unit { width: 160px; }
+
+        .form-textarea { width: 100%; min-height: 72px; border: 1px solid #dcdfe6; border-radius: 4px; padding: 8px 12px; font-size: 13px; color: #333; outline: none; resize: vertical; font-family: inherit; }
+        .form-textarea:focus { border-color: #409eff; }
+
+        .form-hint { font-size: 11px; color: #999; margin-top: 4px; }
+        .form-hint.warn { color: #e6a23c; }
+
+        .char-count { font-size: 11px; color: #c0c4cc; text-align: right; margin-top: 2px; }
+
+        .input-with-unit { display: flex; align-items: center; gap: 6px; }
+        .input-unit { font-size: 13px; color: #666; }
+
+        .radio-group { display: flex; align-items: center; gap: 20px; padding-top: 7px; }
+        .radio-item { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #555; cursor: pointer; }
+        .radio-item input[type="radio"] { accent-color: #409eff; width: 14px; height: 14px; }
+
+        .type-selector { display: flex; gap: 16px; padding-top: 4px; }
+        .type-card { width: 140px; height: 80px; border: 2px solid #e8e8e8; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; position: relative; }
+        .type-card:hover { border-color: #409eff; background: #f0f7ff; }
+        .type-card.selected { border-color: #409eff; background: #f0f7ff; }
+        .type-card.selected::after { content: '✓'; position: absolute; top: 4px; right: 8px; font-size: 14px; color: #409eff; font-weight: bold; }
+        .type-card-label { font-size: 12px; color: #555; font-weight: 500; }
+        .type-card.selected .type-card-label { color: #409eff; }
+        .type-card-sub { font-size: 10px; color: #909399; margin-top: 2px; }
+
+        .upload-area { width: 120px; height: 160px; border: 1px dashed #dcdfe6; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: border-color .2s; background: #fafafa; }
+        .upload-area:hover { border-color: #409eff; }
+        .upload-area .plus { font-size: 28px; color: #c0c4cc; line-height: 1; }
+        .upload-area .upload-text { font-size: 11px; color: #c0c4cc; margin-top: 6px; }
+        .upload-area.uploaded { border-style: solid; border-color: #67c23a; background: #f0f9eb; }
+        .upload-area.uploaded .plus { color: #67c23a; }
+        .upload-area.uploaded .upload-text { color: #67c23a; }
+
+        .select-box { height: 34px; border: 1px solid #dcdfe6; border-radius: 4px; padding: 0 12px; font-size: 13px; color: #333; background: #fff; outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23999' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; cursor: pointer; }
+        .select-box:focus { border-color: #409eff; }
+
+        .tag-input { display: flex; flex-wrap: wrap; gap: 6px; border: 1px solid #dcdfe6; border-radius: 4px; padding: 6px 10px; min-height: 34px; cursor: text; }
+        .tag-input:focus-within { border-color: #409eff; }
+        .tag-input .tag { background: #ecf5ff; color: #409eff; font-size: 12px; padding: 2px 8px; border-radius: 3px; display: flex; align-items: center; gap: 4px; }
+        .tag-input .tag .tag-close { cursor: pointer; font-size: 14px; line-height: 1; }
+        .tag-input input { border: none; outline: none; font-size: 13px; flex: 1; min-width: 100px; }
+
+        .cast-card { border: 1px solid #e8e8e8; border-radius: 6px; padding: 16px; margin-bottom: 12px; background: #fafbfc; }
+        .cast-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .cast-card-title { font-size: 13px; font-weight: 600; color: #333; }
+        .cast-card-remove { font-size: 12px; color: #f56c6c; cursor: pointer; }
+        .cast-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .cast-field { display: flex; flex-direction: column; gap: 4px; }
+        .cast-field label { font-size: 11px; color: #999; }
+        .cast-field input { height: 30px; border: 1px solid #dcdfe6; border-radius: 4px; padding: 0 10px; font-size: 12px; outline: none; }
+        .cast-field input:focus { border-color: #409eff; }
+        .cast-field textarea { min-height: 34px; border: 1px solid #dcdfe6; border-radius: 4px; padding: 7px 10px; font-size: 12px; outline: none; resize: both; overflow: auto; font-family: inherit; }
+        .cast-field textarea:focus { border-color: #409eff; }
+        .cast-field-full { grid-column: span 2; }
+        .cast-photo { grid-column: span 2; display: flex; gap: 10px; align-items: flex-end; }
+
+        .btn-add-cast { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border: 1px dashed #409eff; border-radius: 4px; color: #409eff; font-size: 12px; cursor: pointer; background: #f0f7ff; }
+        .btn-add-cast:hover { background: #e6f1ff; }
+
+        .form-actions { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #e8e8e8; padding: 12px 24px; display: flex; justify-content: center; gap: 12px; z-index: 100; box-shadow: 0 -2px 8px rgba(0,0,0,0.06); }
+        .btn { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 24px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all .2s; }
+        .btn-primary { background: #409eff; color: #fff; }
+        .btn-primary:hover { background: #337ecc; }
+        .btn-default { background: #fff; color: #606266; border: 1px solid #dcdfe6; }
+        .btn-default:hover { border-color: #409eff; color: #409eff; }
+        .btn-danger { background: #fff; color: #f56c6c; border: 1px solid #fbc4c4; }
+        .btn-danger:hover { background: #fef0f0; }
+
+        .divider { height: 1px; background: #f0f0f0; margin: 16px 0; }
+
+        .tooltip { position: relative; display: inline-flex; align-items: center; margin-left: 4px; }
+        .tooltip .tip-icon { width: 16px; height: 16px; background: #409eff; color: #fff; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: help; }
+        .tooltip .tip-content { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #333; color: #fff; font-size: 11px; padding: 6px 10px; border-radius: 4px; white-space: nowrap; margin-bottom: 6px; z-index: 10; }
+        .tooltip:hover .tip-content { display: block; }
+
+        .hidden { display: none !important; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .modal { background: #fff; border-radius: 12px; width: 420px; max-width: 90vw; box-shadow: 0 12px 40px rgba(0,0,0,0.2); overflow: hidden; }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+        .modal-title { font-size: 15px; font-weight: 600; }
+        .modal-close { background: none; border: none; font-size: 20px; color: #999; cursor: pointer; }
+        .modal-body { padding: 24px 20px; text-align: center; }
+        .modal-body .icon { font-size: 48px; margin-bottom: 12px; }
+        .modal-body .msg { font-size: 14px; color: #333; margin-bottom: 6px; font-weight: 500; }
+        .modal-body .sub-msg { font-size: 12px; color: #909399; }
+        .modal-footer { padding: 14px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 10px; }
+
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+        .status-badge.draft { background: #f4f4f5; color: #909399; }
+        .status-badge.pending { background: #fdf6ec; color: #e6a23c; }
+
+        .date-input { height: 34px; border: 1px solid #dcdfe6; border-radius: 4px; padding: 0 12px; font-size: 13px; color: #333; outline: none; }
+        .date-input:focus { border-color: #409eff; }
+
+        /* ===== 校验错误状态 ===== */
+        .form-input.error, .form-textarea.error, .select-box.error, .date-input.error { border-color: #f56c6c !important; }
+        .type-selector.error .type-card { border-color: #f56c6c; }
+        .radio-group.error { outline: 1px dashed #f56c6c; outline-offset: 3px; border-radius: 4px; }
+        .upload-area.error { border-color: #f56c6c; }
+        .field-error { font-size: 11px; color: #f56c6c; margin-top: 4px; }
+
+        /* ===== 步骤条 ===== */
+        .steps-bar { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 16px 24px; display: flex; justify-content: center; }
+        .steps { display: flex; align-items: center; gap: 0; }
+        .step-item { display: flex; align-items: center; }
+        .step-circle { width: 26px; height: 26px; border-radius: 50%; background: #e4e7ed; color: #909399; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
+        .step-item.active .step-circle { background: #409eff; color: #fff; }
+        .step-item.done .step-circle { background: #67c23a; color: #fff; }
+        .step-text { font-size: 13px; color: #909399; margin: 0 8px; }
+        .step-item.active .step-text { color: #409eff; font-weight: 600; }
+        .step-item.done .step-text { color: #67c23a; }
+        .step-line { width: 90px; height: 2px; background: #e4e7ed; margin: 0 4px; }
+        .step-line.done { background: #67c23a; }
+
+        .step-page.hidden { display: none !important; }
+
+        /* ===== 物料上传 ===== */
+        .upload-summary { display: flex; align-items: center; gap: 40px; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
+        .upload-summary .sum-item { font-size: 13px; color: #333; font-weight: 600; }
+        .upload-summary .sum-item .num { color: #409eff; }
+        .upload-summary .sum-actions { margin-left: auto; display: flex; gap: 10px; }
+
+        .mat-table { width: 100%; border-collapse: collapse; }
+        .mat-table th { background: #fafafa; color: #555; font-size: 12px; font-weight: 600; padding: 12px 14px; text-align: left; border-bottom: 1px solid #ebeef5; }
+        .mat-table td { padding: 12px 14px; font-size: 13px; color: #333; border-bottom: 1px solid #ebeef5; vertical-align: middle; }
+        .mat-table tr:hover td { background: #f5f7fa; }
+        .mat-thumb { width: 48px; height: 64px; border-radius: 4px; object-fit: cover; display: block; background: #f0f0f0; border: 1px solid #e8e8e8; }
+        .file-link { color: #409eff; text-decoration: none; }
+        .file-link:hover { text-decoration: underline; }
+        .mat-empty { padding: 40px 20px; text-align: center; color: #c0c4cc; font-size: 13px; }
+        .row-actions { display: flex; gap: 8px; flex-wrap: nowrap; }
+        .btn-mini { height: 28px; padding: 0 10px; font-size: 12px; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; flex-shrink: 0; }
+        .btn-mini.primary { background: #409eff; color: #fff; }
+        .btn-mini.primary:hover { background: #337ecc; }
+        .btn-mini.default { background: #fff; color: #606266; border: 1px solid #dcdfe6; }
+        .btn-mini.default:hover { border-color: #409eff; color: #409eff; }
+        .btn-mini.danger { background: #f56c6c; color: #fff; }
+        .btn-mini.danger:hover { background: #e15b5b; }
+
+        /* ===== 物料上传：一级入口 ===== */
+        .entry-cards { display: flex; gap: 24px; }
+        .entry-card { flex: 1; border: 2px solid #e8e8e8; border-radius: 10px; padding: 34px 20px 26px; text-align: center; cursor: pointer; transition: all .2s; background: #fff; }
+        .entry-card:hover { border-color: #409eff; background: #f0f7ff; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(64,158,255,0.12); }
+        .entry-icon { font-size: 40px; margin-bottom: 12px; }
+        .entry-name { font-size: 15px; font-weight: 600; color: #333; }
+        .entry-sub { font-size: 12px; color: #909399; margin-top: 6px; }
+        .mat-back { display: inline-flex; align-items: center; gap: 4px; color: #409eff; font-size: 13px; cursor: pointer; margin-bottom: 12px; }
+        .mat-back:hover { text-decoration: underline; }
+        .drag-handle { cursor: grab; }
+        .drag-handle:active { cursor: grabbing; }
+        .mat-table tr.dragging { opacity: .55; background: #ecf5ff !important; }
+        .mat-table tr.dragging td { background: #ecf5ff !important; }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <span class="breadcrumb">内容中台 / 剧目管理 /</span>
+    <h1>新建短剧</h1>
+    <span class="status-badge draft" style="margin-left: auto;">● 草稿</span>
+</div>
+
+<div class="steps-bar">
+    <div class="steps">
+        <div class="step-item active" id="stepItem1">
+            <div class="step-circle">1</div>
+            <div class="step-text">填写剧目信息</div>
+        </div>
+        <div class="step-line" id="stepLine1"></div>
+        <div class="step-item" id="stepItem2">
+            <div class="step-circle">2</div>
+            <div class="step-text">物料上传</div>
+        </div>
+        <div class="step-line" id="stepLine2"></div>
+        <div class="step-item" id="stepItem3">
+            <div class="step-circle">3</div>
+            <div class="step-text">上传完成</div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ 第一步：剧目信息 ============ -->
+<div class="page-body step-page" id="pageForm">
+    <!-- 基本信息 -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-title">基本信息</span>
+        </div>
+        <div class="section-body">
+            <div class="form-row" id="row_type">
+                <div class="form-label"><span class="required">*</span> 短剧类型</div>
+                <div class="form-content">
+                    <div class="type-selector" id="typeSelector">
+                        <div class="type-card" data-type="live" onclick="selectType(this)">
+                            <div style="font-size: 24px;">🎬</div>
+                            <span class="type-card-label">真人短剧</span>
+                        </div>
+                        <div class="type-card" data-type="anime" onclick="selectType(this)">
+                            <div style="font-size: 24px;">🎨</div>
+                            <span class="type-card-label">动漫短剧</span>
+                            <span class="type-card-sub">AI/GC制作生成</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row" id="row_lang">
+                <div class="form-label"><span class="required">*</span> 语种</div>
+                <div class="form-content">
+                    <select class="select-box" id="f_lang" style="width: 200px;">
+                        <option value="">请选择语种</option>
+                        <option>中文繁体</option>
+                        <option>韩语</option>
+                        <option>英语</option>
+                        <option>印尼语</option>
+                        <option>他加禄语</option>
+                        <option>泰语</option>
+                        <option>葡萄牙语</option>
+                        <option>西班牙语</option>
+                        <option>阿拉伯语</option>
+                        <option>日语</option>
+                        <option>德语</option>
+                        <option>法语</option>
+                        <option>菲律宾语</option>
+                        <option>波兰语</option>
+                        <option>意大利语</option>
+                        <option>土耳其语</option>
+                        <option>越南语</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row" id="row_name">
+                <div class="form-label"><span class="required">*</span> 短剧名称</div>
+                <div class="form-content">
+                    <input type="text" class="form-input" id="f_name" placeholder="请输入短剧名称（对应语种填写）" maxlength="100" oninput="updateCount(this, 'name-count', 100)">
+                    <div class="char-count" id="name-count">0/100</div>
+                    <div class="form-hint warn">用对应语种填写，不能有中文</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label">短剧别名</div>
+                <div class="form-content">
+                    <input type="text" class="form-input" placeholder="请输入短剧别名（非必填）" maxlength="100" oninput="updateCount(this, 'alias-count', 100)">
+                    <div class="char-count" id="alias-count">0/100</div>
+                    <div class="form-hint">没有语种要求，可以中文</div>
+                </div>
+            </div>
+
+            <div class="form-row" id="row_adult">
+                <div class="form-label"><span class="required">*</span> 是否18+</div>
+                <div class="form-content">
+                    <div class="radio-group" id="g_adult">
+                        <label class="radio-item"><input type="radio" name="adult"> 否</label>
+                        <label class="radio-item"><input type="radio" name="adult"> 是</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row" id="row_desc">
+                <div class="form-label"><span class="required">*</span> 短剧简介</div>
+                <div class="form-content">
+                    <textarea class="form-textarea" id="f_desc" placeholder="请输入短剧简介（对应语种填写）" maxlength="500" oninput="updateCount(this, 'desc-count', 500)"></textarea>
+                    <div class="char-count" id="desc-count">0/500</div>
+                    <div class="form-hint warn">用对应语种填写，不能有中文</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label"><span class="required">*</span> 发行年份</div>
+                <div class="form-content">
+                    <select class="select-box" style="width: 160px;">
+                        <option>2026</option>
+                        <option>2025</option>
+                        <option>2024</option>
+                        <option>2023</option>
+                    </select>
+                    <div class="form-hint">默认今年</div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="form-row" id="row_cover">
+                <div class="form-label"><span class="required">*</span> 短剧封面</div>
+                <div class="form-content">
+                    <div class="upload-area" id="u_cover" onclick="simulateUpload(this)">
+                        <span class="plus">+</span>
+                        <span class="upload-text">点击上传</span>
+                    </div>
+                    <div class="form-hint">尺寸 600×800，jpg格式</div>
+                </div>
+            </div>
+
+            <div class="form-row" id="row_psd">
+                <div class="form-label"><span class="required">*</span> 封面PSD文件</div>
+                <div class="form-content">
+                    <div class="upload-area" id="u_psd" style="width:120px; height:120px;" onclick="simulateUpload(this)">
+                        <span class="plus">+</span>
+                        <span class="upload-text">上传PSD</span>
+                    </div>
+                    <div class="form-hint warn">必填，上传PSD源文件</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label"><span class="required">*</span> 视频是否已压版号</div>
+                <div class="form-content">
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="versionNo" checked> 否</label>
+                        <label class="radio-item"><input type="radio" name="versionNo"> 是</label>
+                    </div>
+                    <div class="form-hint">默认：否</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label"><span class="required">*</span> 支付方式</div>
+                <div class="form-content">
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="payType" checked> 按集</label>
+                        <label class="radio-item"><input type="radio" name="payType"> 按季</label>
+                    </div>
+                    <div class="form-hint">默认：按集</div>
+                </div>
+            </div>
+
+            <div class="form-row" id="row_paypoint">
+                <div class="form-label"><span class="required">*</span> 付费卡点</div>
+                <div class="form-content">
+                    <input type="text" class="form-input with-unit" id="f_paypoint" placeholder="请输入付费卡点" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')">
+                    <div class="form-hint">必填，只能填写阿拉伯数字</div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="form-row" id="row_exclusive">
+                <div class="form-label"><span class="required">*</span> 免费独家类型</div>
+                <div class="form-content">
+                    <div class="radio-group" id="g_exclusive">
+                        <label class="radio-item"><input type="radio" name="exclusive"> 独家</label>
+                        <label class="radio-item"><input type="radio" name="exclusive"> 非独家</label>
+                        <label class="radio-item"><input type="radio" name="exclusive"> 双独家</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row" id="row_firstRelease">
+                <div class="form-label"><span class="required">*</span> 是否首发</div>
+                <div class="form-content">
+                    <div class="radio-group" id="g_firstRelease">
+                        <label class="radio-item"><input type="radio" name="firstRelease" value="first"> 首发</label>
+                        <label class="radio-item"><input type="radio" name="firstRelease" value="second"> 次新</label>
+                        <label class="radio-item"><input type="radio" name="firstRelease" value="third"> 二轮</label>
+                    </div>
+                    <div class="form-hint">无论选择哪种，都需要填写首发平台</div>
+                </div>
+            </div>
+
+            <div class="form-row" id="row_platform">
+                <div class="form-label"><span class="required">*</span> 首发平台</div>
+                <div class="form-content">
+                    <input type="text" class="form-input" id="f_platform" placeholder="请输入首发平台名称">
+                </div>
+            </div>
+
+            <div class="form-row" id="row_payTime">
+                <div class="form-label"><span class="required">*</span> 付费上线时间</div>
+                <div class="form-content">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="datetime-local" class="date-input" id="f_payTime" style="width: 240px;">
+                        <span style="font-size:12px; color:#909399;">北京时间</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row" id="row_freeTime">
+                <div class="form-label"><span class="required">*</span> 免费上线时间</div>
+                <div class="form-content">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="datetime-local" class="date-input" id="f_freeTime" style="width: 240px;">
+                        <span style="font-size:12px; color:#909399;">北京时间</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row" id="row_rights">
+                <div class="form-label"><span class="required">*</span> 权益</div>
+                <div class="form-content">
+                    <div class="radio-group" id="g_rights">
+                        <label class="radio-item"><input type="checkbox" name="rights"> 免费</label>
+                        <label class="radio-item"><input type="checkbox" name="rights"> 付费</label>
+                    </div>
+                    <div class="form-hint">可多选</div>
+                </div>
+            </div>
+
+            <div class="form-row" id="row_gender">
+                <div class="form-label"><span class="required">*</span> 性别偏好</div>
+                <div class="form-content">
+                    <div class="radio-group" id="g_gender">
+                        <label class="radio-item"><input type="radio" name="gender"> 男</label>
+                        <label class="radio-item"><input type="radio" name="gender"> 女</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 角色信息 -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-title">角色信息</span>
+        </div>
+        <div class="section-body">
+            <div id="castRuleBox" style="background: #fdf6ec; border: 1px solid #faecd8; border-radius: 6px; padding: 12px 16px; margin-bottom: 16px;">
+                    <p style="font-size:12px; color:#e6a23c; font-weight:600; margin-bottom:6px;">真人剧：</p>
+                    <p style="font-size:11px; color:#909399; line-height:1.8; margin-left:8px;">必填：男主、女主的角色名、真名（英文、中文简体、中文繁体）、照片（尺寸约束同内容中台）</p>
+                    <p style="font-size:11px; color:#909399; line-height:1.8; margin-left:8px;">选填：简历</p>
+                    <p style="font-size:12px; color:#e6a23c; font-weight:600; margin-bottom:6px; margin-top:8px;">漫剧：</p>
+                    <p style="font-size:11px; color:#909399; line-height:1.8; margin-left:8px;">必填：角色名</p>
+                    <p style="font-size:11px; color:#909399; line-height:1.8; margin-left:8px;">选填：照片、简历</p>
+                </div>
+
+                <div id="castList">
+                    <div class="cast-card">
+                        <div class="cast-card-header">
+                            <span class="cast-card-title">男主</span>
+                        </div>
+                        <div class="cast-card-body">
+                            <div class="cast-field">
+                                <label>角色名 <span style="color:#f56c6c;">*</span></label>
+                                <input type="text" placeholder="请输入角色名">
+                            </div>
+                            <div class="cast-field">
+                                <label>在故事中的描述</label>
+                                <input type="text" placeholder="在故事中的描述">
+                            </div>
+                            <div class="cast-field">
+                                <label>真实姓名（英文） <span style="color:#f56c6c;">*</span></label>
+                                <input type="text" placeholder="English name">
+                            </div>
+                            <div class="cast-field">
+                                <label>真实姓名（中文简体） <span style="color:#f56c6c;">*</span></label>
+                                <input type="text" placeholder="中文简体姓名">
+                            </div>
+                            <div class="cast-field">
+                                <label>真实姓名（中文繁体） <span style="color:#f56c6c;">*</span></label>
+                                <input type="text" placeholder="中文繁體姓名">
+                            </div>
+                            <div class="cast-field cast-field-full">
+                                <label>简历</label>
+                                <textarea placeholder="选填，可拖拽右下角调整宽高"></textarea>
+                            </div>
+                            <div class="cast-photo">
+                                <div>
+                                    <label style="font-size:11px; color:#999; display:block; margin-bottom:4px;">男主照片 <span style="color:#f56c6c;">*</span></label>
+                                    <div class="upload-area" style="width:80px; height:80px;" onclick="simulateUpload(this)">
+                                        <span class="plus">+</span>
+                                        <span class="upload-text" style="font-size:10px;">上传</span>
+                                    </div>
+                                    <div class="form-hint">500×500</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cast-card">
+                        <div class="cast-card-header">
+                            <span class="cast-card-title">女主</span>
+                        </div>
+                        <div class="cast-card-body">
+                            <div class="cast-field">
+                                <label>角色名 <span style="color:#f56c6c;">*</span></label>
+                                <input type="text" placeholder="请输入角色名">
+                            </div>
+                            <div class="cast-field">
+                                <label>在故事中的描述</label>
+                                <input type="text" placeholder="在故事中的描述">
+                            </div>
+                            <div class="cast-field">
+                                <label>真实姓名（英文） <span style="color:#f56c6c;">*</span></label>
+                                <input type="text" placeholder="English name">
+                            </div>
+                            <div class="cast-field">
+                                <label>真实姓名（中文简体） <span style="color:#f56c6c;">*</span></label>
+                                <input type="text" placeholder="中文简体姓名">
+                            </div>
+                            <div class="cast-field">
+                                <label>真实姓名（中文繁体） <span style="color:#f56c6c;">*</span></label>
+                                <input type="text" placeholder="中文繁體姓名">
+                            </div>
+                            <div class="cast-field cast-field-full">
+                                <label>简历</label>
+                                <textarea placeholder="选填，可拖拽右下角调整宽高"></textarea>
+                            </div>
+                            <div class="cast-photo">
+                                <div>
+                                    <label style="font-size:11px; color:#999; display:block; margin-bottom:4px;">女主照片 <span style="color:#f56c6c;">*</span></label>
+                                    <div class="upload-area" style="width:80px; height:80px;" onclick="simulateUpload(this)">
+                                        <span class="plus">+</span>
+                                        <span class="upload-text" style="font-size:10px;">上传</span>
+                                    </div>
+                                    <div class="form-hint">500×500</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-add-cast" onclick="addCastCard()">+ 添加角色</div>
+        </div>
+    </div>
+
+
+    <!-- 制作团队 -->
+    <div class="section">
+        <div class="section-header">
+            <span class="section-title">制作团队</span>
+        </div>
+        <div class="section-body">
+            <div class="form-row" id="row_signer">
+                <div class="form-label"><span class="required">*</span> 签约主体</div>
+                <div class="form-content">
+                    <input type="text" class="form-input" id="f_signer" placeholder="请输入签约主体" maxlength="100" oninput="updateCount(this, 'signer-count', 100)">
+                    <div class="char-count" id="signer-count">0/100</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label">是否原创</div>
+                <div class="form-content">
+                    <div class="radio-group">
+                        <label class="radio-item" onclick="toggleOriginal('adapt')"><input type="radio" name="original"> 改编</label>
+                        <label class="radio-item" onclick="toggleOriginal('original')"><input type="radio" name="original"> 原创</label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="adaptFields" class="hidden">
+                <div class="form-row">
+                    <div class="form-label">改编书籍名称</div>
+                    <div class="form-content">
+                        <input type="text" class="form-input" placeholder="请输入改编书籍名称" maxlength="100" oninput="updateCount(this, 'book-count', 100)">
+                        <div class="char-count" id="book-count">0/100</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-label">改编书籍作者</div>
+                    <div class="form-content">
+                        <input type="text" class="form-input" placeholder="请输入改编书籍作者" maxlength="50" oninput="updateCount(this, 'author-count', 50)">
+                        <div class="char-count" id="author-count">0/50</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-label">书籍版权方</div>
+                    <div class="form-content">
+                        <input type="text" class="form-input" placeholder="请输入书籍版权方" maxlength="100" oninput="updateCount(this, 'copyright-count', 100)">
+                        <div class="char-count" id="copyright-count">0/100</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label">制作机构</div>
+                <div class="form-content">
+                    <input type="text" class="form-input" placeholder="请输入制作机构" maxlength="50" oninput="updateCount(this, 'studio-count', 50)">
+                    <div class="char-count" id="studio-count">0/50</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label">制作人</div>
+                <div class="form-content">
+                    <input type="text" class="form-input" placeholder="请输入制作人真实姓名" maxlength="50" oninput="updateCount(this, 'producer-count', 50)">
+                    <div class="char-count" id="producer-count">0/50</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label">导演</div>
+                <div class="form-content">
+                    <input type="text" class="form-input" placeholder="请输入导演真实姓名" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label">编剧</div>
+                <div class="form-content">
+                    <input type="text" class="form-input" placeholder="请输入编剧真实姓名" maxlength="50">
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+<!-- ============ /第一步 ============ -->
+
+<!-- ============ 第二步：物料上传 ============ -->
+<div class="page-body step-page hidden" id="pageMaterial">
+
+    <!-- 一级页面：三个入口 -->
+    <div id="matEntry">
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">物料上传</span>
+                <span class="section-tag">点击进入对应上传页</span>
+            </div>
+            <div class="section-body">
+                <div class="entry-cards">
+                    <div class="entry-card" onclick="openMaterial('cheng')">
+                        <div class="entry-icon">🎞️</div>
+                        <div class="entry-name">成片上传 <span style="color:#f56c6c;">*</span></div>
+                        <div class="entry-sub">已传 <span id="entryChengCount">0</span> 个</div>
+                    </div>
+                    <div class="entry-card" onclick="openMaterial('video')">
+                        <div class="entry-icon">🎬</div>
+                        <div class="entry-name">无字幕上传 <span style="color:#f56c6c;">*</span></div>
+                        <div class="entry-sub">已传 <span id="entryVideoCount">0</span> 集</div>
+                    </div>
+                    <div class="entry-card" onclick="openMaterial('srt')">
+                        <div class="entry-icon">📄</div>
+                        <div class="entry-name">字幕上传 <span style="color:#f56c6c;">*</span></div>
+                        <div class="entry-sub">已传 <span id="entrySrtCount">0</span> 个</div>
+                    </div>
+                    <div class="entry-card" onclick="openMaterial('audio')">
+                        <div class="entry-icon">🎵</div>
+                        <div class="entry-name">音频上传</div>
+                        <div class="entry-sub">已传 <span id="entryAudioCount">0</span> 个（选填）</div>
+                    </div>
+                </div>
+                <div class="form-hint" style="margin-top:14px;">成片、无字幕视频、字幕为必传物料；音频为选填。点击上方入口进入对应上传页。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 二级页面：无字幕视频 -->
+    <div id="mat_video" class="hidden">
+        <div class="mat-back" onclick="closeMaterial()">‹ 返回物料上传</div>
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title"><span style="color:#f56c6c;">* </span>上传无字幕视频</span>
+                <span class="section-tag">必填</span>
+            </div>
+            <div class="upload-summary">
+                <span class="sum-item">上传集数：<span class="num" id="videoCount">0</span></span>
+                <span class="sum-item">审核状态：<span style="color:#e6a23c;">需修改</span></span>
+                <span class="sum-item" style="font-weight:400; color:#909399; font-size:12px;">仅支持 mp4 格式</span>
+                <div class="sum-actions">
+                    <button class="btn btn-primary" onclick="addMaterialRow('video')">继续上传</button>
+                </div>
+            </div>
+            <table class="mat-table">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">顺序</th>
+                        <th style="width:80px;">集数</th>
+                        <th style="width:80px;">视频</th>
+                        <th>文件名称</th>
+                        <th style="width:80px;">时长</th>
+                        <th style="width:100px;">大小</th>
+                        <th style="width:170px;">更新时间</th>
+                        <th style="width:220px;">操作<div style="font-weight:400; font-size:11px; color:#c0c4cc; margin-top:2px;">一期可暂不实现拖拽修改，只需保证能修改顺序即可</div></th>
+                    </tr>
+                </thead>
+                <tbody id="videoTbody">
+                </tbody>
+            </table>
+            <div class="mat-empty" id="videoEmpty">暂无视频，点击右上角「继续上传」添加</div>
+        </div>
+    </div>
+
+    <!-- 二级页面：字幕 srt -->
+    <div id="mat_srt" class="hidden">
+        <div class="mat-back" onclick="closeMaterial()">‹ 返回物料上传</div>
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title"><span style="color:#f56c6c;">* </span>上传字幕 srt 文件</span>
+                <span class="section-tag">必填</span>
+            </div>
+            <div class="upload-summary">
+                <span class="sum-item">上传集数：<span class="num" id="srtCount">0</span></span>
+                <span class="sum-item">审核状态：<span style="color:#e6a23c;">需修改</span></span>
+                <span class="sum-item" style="font-weight:400; color:#909399; font-size:12px;">仅支持 srt 格式</span>
+                <div class="sum-actions">
+                    <button class="btn btn-primary" onclick="addMaterialRow('srt')">继续上传</button>
+                </div>
+            </div>
+            <table class="mat-table">
+                <thead>
+                    <tr>
+                        <th style="width:60px;">顺序</th>
+                        <th style="width:80px;">字幕</th>
+                        <th>文件名称</th>
+                        <th style="width:80px;">时长</th>
+                        <th style="width:100px;">大小</th>
+                        <th style="width:170px;">更新时间</th>
+                        <th style="width:220px;">操作<div style="font-weight:400; font-size:11px; color:#c0c4cc; margin-top:2px;">一期可暂不实现拖拽修改，只需保证能修改顺序即可</div></th>
+                    </tr>
+                </thead>
+                <tbody id="srtTbody">
+                </tbody>
+            </table>
+            <div class="mat-empty" id="srtEmpty">暂无字幕文件，点击右上角「继续上传」添加</div>
+        </div>
+    </div>
+
+    <!-- 二级页面：音频 -->
+    <div id="mat_audio" class="hidden">
+        <div class="mat-back" onclick="closeMaterial()">‹ 返回物料上传</div>
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">上传音频</span>
+                <span class="section-tag" style="background:#f4f4f5; color:#909399;">选填</span>
+            </div>
+            <div class="upload-summary">
+                <span class="sum-item">上传集数：<span class="num" id="audioCount">0</span></span>
+                <span class="sum-item">审核状态：<span style="color:#e6a23c;">需修改</span></span>
+                <div class="sum-actions">
+                    <button class="btn btn-primary" onclick="addMaterialRow('audio')">继续上传</button>
+                </div>
+            </div>
+            <table class="mat-table">
+                <thead>
+                    <tr>
+                        <th style="width:60px;">顺序</th>
+                        <th style="width:80px;">音频</th>
+                        <th>文件名称</th>
+                        <th style="width:80px;">时长</th>
+                        <th style="width:100px;">大小</th>
+                        <th style="width:170px;">更新时间</th>
+                        <th style="width:220px;">操作<div style="font-weight:400; font-size:11px; color:#c0c4cc; margin-top:2px;">一期可暂不实现拖拽修改，只需保证能修改顺序即可</div></th>
+                    </tr>
+                </thead>
+                <tbody id="audioTbody">
+                </tbody>
+            </table>
+            <div class="mat-empty" id="audioEmpty">暂无音频，点击右上角「继续上传」添加</div>
+        </div>
+    </div>
+
+<!-- 二级页面：成片上传 -->
+    <div id="mat_cheng" class="hidden">
+        <div class="mat-back" onclick="closeMaterial()">‹ 返回物料上传</div>
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title"><span style="color:#f56c6c;">* </span>上传成片</span>
+                <span class="section-tag">必填</span>
+            </div>
+            <div class="upload-summary">
+                <span class="sum-item">上传集数：<span class="num" id="chengCount">0</span></span>
+                <span class="sum-item">审核状态：<span style="color:#e6a23c;">需修改</span></span>
+                <span class="sum-item" style="font-weight:400; color:#909399; font-size:12px;">仅支持 mp4 格式</span>
+                <div class="sum-actions">
+                    <button class="btn btn-primary" onclick="addMaterialRow('cheng')">继续上传</button>
+                </div>
+            </div>
+            <table class="mat-table">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">顺序</th>
+                        <th style="width:80px;">集数</th>
+                        <th style="width:80px;">成片</th>
+                        <th>文件名称</th>
+                        <th style="width:80px;">时长</th>
+                        <th style="width:100px;">大小</th>
+                        <th style="width:170px;">更新时间</th>
+                        <th style="width:220px;">操作<div style="font-weight:400; font-size:11px; color:#c0c4cc; margin-top:2px;">一期可暂不实现拖拽修改，只需保证能修改顺序即可</div></th>
+                    </tr>
+                </thead>
+                <tbody id="chengTbody">
+                </tbody>
+            </table>
+            <div class="mat-empty" id="chengEmpty">暂无成片，点击右上角「继续上传」添加</div>
+        </div>
+    </div>
+
+
+
+</div>
+<!-- ============ /第二步 ============ -->
+
+<!-- 底部操作栏：第一步 -->
+<div class="form-actions" id="actionsForm">
+    <button class="btn btn-danger" onclick="showModal('cancel')">取消</button>
+    <button class="btn btn-default" onclick="saveDraft()">保存草稿</button>
+    <button class="btn btn-primary" onclick="goNext()">下一步</button>
+</div>
+
+<!-- 底部操作栏：第二步 -->
+<div class="form-actions hidden" id="actionsMaterial">
+    <button class="btn btn-default" onclick="goPrev()">上一步</button>
+    <button class="btn btn-default" onclick="saveDraft()">保存草稿</button>
+    <button class="btn btn-primary" onclick="submitAll()">提交审核</button>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="hideModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">提示</span>
+            <button class="modal-close" onclick="hideModal()">×</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer" id="modalFooter"></div>
+    </div>
+</div>
+
+<script>
+function selectType(el) {
+    document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    renderCastType(el.dataset.type);
+}
+
+// 根据短剧类型切换角色信息的呈现形式（黄色说明框固定汇总，不随类型变化）
+function renderCastType(type) {
+    const isLive = type === 'live';
+    const list = document.getElementById('castList');
+    list.innerHTML = isLive ? buildLiveCast() : buildAnimeCast();
+}
+
+// 真人剧：男主 + 女主（角色名/真名三语/照片必填，简历选填）
+function buildLiveCast() {
+    return liveCastCard('男主') + liveCastCard('女主');
+}
+function liveCastCard(role) {
+    return `
+    <div class="cast-card">
+        <div class="cast-card-header"><span class="cast-card-title">${role}</span></div>
+        <div class="cast-card-body">
+            <div class="cast-field"><label>角色名 <span style="color:#f56c6c;">*</span></label><input type="text" placeholder="请输入角色名"></div>
+            <div class="cast-field"><label>在故事中的描述</label><input type="text" placeholder="在故事中的描述"></div>
+            <div class="cast-field"><label>真实姓名（英文） <span style="color:#f56c6c;">*</span></label><input type="text" placeholder="English name"></div>
+            <div class="cast-field"><label>真实姓名（中文简体） <span style="color:#f56c6c;">*</span></label><input type="text" placeholder="中文简体姓名"></div>
+            <div class="cast-field"><label>真实姓名（中文繁体） <span style="color:#f56c6c;">*</span></label><input type="text" placeholder="中文繁體姓名"></div>
+            <div class="cast-field cast-field-full"><label>简历</label><textarea placeholder="选填，可拖拽右下角调整宽高"></textarea></div>
+            <div class="cast-photo">
+                <div>
+                    <label style="font-size:11px; color:#999; display:block; margin-bottom:4px;">${role}照片 <span style="color:#f56c6c;">*</span></label>
+                    <div class="upload-area" style="width:80px; height:80px;" onclick="simulateUpload(this)">
+                        <span class="plus">+</span>
+                        <span class="upload-text" style="font-size:10px;">上传</span>
+                    </div>
+                    <div class="form-hint">500×500</div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+// 漫剧：仅角色名必填，照片/简历选填
+function buildAnimeCast() {
+    return animeCastCard('角色 1', false);
+}
+function animeCastCard(title, removable) {
+    return `
+    <div class="cast-card">
+        <div class="cast-card-header">
+            <span class="cast-card-title">${title}</span>
+            ${removable ? '<span class="cast-card-remove" onclick="this.closest(\'.cast-card\').remove()">删除</span>' : ''}
+        </div>
+        <div class="cast-card-body">
+            <div class="cast-field cast-field-full"><label>角色名 <span style="color:#f56c6c;">*</span></label><input type="text" placeholder="请输入角色名"></div>
+            <div class="cast-field cast-field-full"><label>简历</label><textarea placeholder="选填，可拖拽右下角调整宽高"></textarea></div>
+            <div class="cast-photo">
+                <div>
+                    <label style="font-size:11px; color:#999; display:block; margin-bottom:4px;">照片</label>
+                    <div class="upload-area" style="width:80px; height:80px;" onclick="simulateUpload(this)">
+                        <span class="plus">+</span>
+                        <span class="upload-text" style="font-size:10px;">上传</span>
+                    </div>
+                    <div class="form-hint">500×500（选填）</div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+// 添加角色：随当前类型生成对应卡片
+function addCastCard() {
+    const list = document.getElementById('castList');
+    const type = document.querySelector('.type-card.selected').dataset.type;
+    const count = list.children.length + 1;
+    const card = document.createElement('div');
+    if (type === 'live') {
+        card.innerHTML = liveCastCard('角色 ' + count);
+        card.querySelector('.cast-card-header')
+            .insertAdjacentHTML('beforeend', '<span class="cast-card-remove" onclick="this.closest(\'.cast-card\').remove()">删除</span>');
+    } else {
+        card.innerHTML = animeCastCard('角色 ' + count, true);
+    }
+    list.appendChild(card.firstElementChild);
+}
+
+function updateCount(input, countId, max) {
+    const len = input.value.length;
+    document.getElementById(countId).textContent = len + '/' + max;
+}
+
+function simulateUpload(el) {
+    if (el.classList.contains('uploaded')) return;
+    el.classList.add('uploaded');
+    el.querySelector('.plus').textContent = '✓';
+    el.querySelector('.upload-text').textContent = '已上传';
+}
+
+function toggleOriginal(type) {
+    const fields = document.getElementById('adaptFields');
+    if (type === 'original') {
+        fields.classList.add('hidden');
+    } else {
+        fields.classList.remove('hidden');
+    }
+}
+
+
+function addTag(event, containerId) {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    const input = event.target;
+    const val = input.value.trim();
+    if (!val) return;
+    const container = document.getElementById(containerId);
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = val + ' <span class="tag-close" onclick="this.parentElement.remove()">×</span>';
+    container.insertBefore(tag, input);
+    input.value = '';
+}
+
+// ===== 步骤 & 页面切换 =====
+let currentStep = 1;
+function goStep(n) {
+    currentStep = n;
+    const isForm = n === 1;
+    document.getElementById('pageForm').classList.toggle('hidden', !isForm);
+    document.getElementById('pageMaterial').classList.toggle('hidden', isForm);
+    document.getElementById('actionsForm').classList.toggle('hidden', !isForm);
+    document.getElementById('actionsMaterial').classList.toggle('hidden', isForm);
+    // steps bar
+    const s1 = document.getElementById('stepItem1');
+    const s2 = document.getElementById('stepItem2');
+    const s3 = document.getElementById('stepItem3');
+    const line1 = document.getElementById('stepLine1');
+    const line2 = document.getElementById('stepLine2');
+    if (isForm) {
+        s1.className = 'step-item active'; s2.className = 'step-item'; s3.className = 'step-item';
+        line1.className = 'step-line'; line2.className = 'step-line';
+    } else if (n === 2) {
+        s1.className = 'step-item done'; s2.className = 'step-item active'; s3.className = 'step-item';
+        line1.className = 'step-line done'; line2.className = 'step-line';
+        closeMaterial(); // 进入第二步时始终回到一级入口页
+    } else if (n === 3) {
+        s1.className = 'step-item done'; s2.className = 'step-item done'; s3.className = 'step-item done';
+        line1.className = 'step-line done'; line2.className = 'step-line done';
+    }
+    window.scrollTo(0, 0);
+}
+
+// ===== 必填校验 =====
+function markField(id, isGroup) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('error');
+    const row = el.closest('.form-row') || el.closest('.section-body');
+    if (row && !row.querySelector('.field-error[data-for="' + id + '"]')) {
+        const msg = document.createElement('div');
+        msg.className = 'field-error';
+        msg.setAttribute('data-for', id);
+        msg.textContent = '此项为必填项，请填写完整';
+        const content = el.closest('.form-content') || row;
+        content.appendChild(msg);
+    }
+}
+function clearErrors() {
+    document.querySelectorAll('.error').forEach(e => e.classList.remove('error'));
+    document.querySelectorAll('.field-error').forEach(e => e.remove());
+}
+
+function validateForm() {
+    clearErrors();
+    const missing = [];
+    const need = (cond, id, label) => { if (!cond) { markField(id); missing.push(label); } };
+
+    // 基本信息
+    need(document.querySelector('.type-card.selected'), 'typeSelector', '短剧类型');
+    need(document.getElementById('f_lang').value, 'f_lang', '语种');
+    need(document.getElementById('f_name').value.trim(), 'f_name', '短剧名称');
+    need(document.querySelector('input[name="adult"]:checked'), 'g_adult', '是否18+');
+    need(document.getElementById('f_desc').value.trim(), 'f_desc', '短剧简介');
+    need(document.getElementById('u_cover').classList.contains('uploaded'), 'u_cover', '短剧封面');
+    need(document.getElementById('u_psd').classList.contains('uploaded'), 'u_psd', '封面PSD文件');
+    need(document.getElementById('f_paypoint').value.trim(), 'f_paypoint', '付费卡点');
+    need(document.querySelector('input[name="exclusive"]:checked'), 'g_exclusive', '免费独家类型');
+    need(document.querySelector('input[name="firstRelease"]:checked'), 'g_firstRelease', '是否首发');
+    need(document.getElementById('f_platform').value.trim(), 'f_platform', '首发平台');
+    need(document.getElementById('f_payTime').value, 'f_payTime', '付费上线时间');
+    need(document.getElementById('f_freeTime').value, 'f_freeTime', '免费上线时间');
+    need(document.querySelector('input[name="rights"]:checked'), 'g_rights', '权益');
+    need(document.querySelector('input[name="gender"]:checked'), 'g_gender', '性别偏好');
+    // 制作团队
+    need(document.getElementById('f_signer').value.trim(), 'f_signer', '签约主体');
+
+    // 角色信息（按当前类型校验）
+    const type = document.querySelector('.type-card.selected') && document.querySelector('.type-card.selected').dataset.type;
+    const castCards = document.querySelectorAll('#castList .cast-card');
+    if (!castCards.length) {
+        missing.push('角色信息');
+    } else if (type === 'live') {
+        castCards.forEach(card => {
+            const title = card.querySelector('.cast-card-title').textContent;
+            const inputs = card.querySelectorAll('input[type="text"]');
+            // 角色名 + 三语真名（跳过"在故事中的描述"选填）
+            const reqIdx = [0, 2, 3, 4];
+            reqIdx.forEach(i => {
+                if (inputs[i] && !inputs[i].value.trim()) missing.push(title + '-必填项');
+            });
+            const photo = card.querySelector('.upload-area');
+            if (photo && !photo.classList.contains('uploaded')) missing.push(title + '照片');
+        });
+    } else if (type === 'anime') {
+        castCards.forEach(card => {
+            const title = card.querySelector('.cast-card-title').textContent;
+            const inp = card.querySelector('input[type="text"]');
+            if (inp && !inp.value.trim()) missing.push(title + '-角色名');
+        });
+    }
+
+    if (missing.length) {
+        const overlay = document.getElementById('modalOverlay');
+        overlay.dataset.rebuild = '1';
+        document.getElementById('modalTitle').textContent = '信息未填写完整';
+        document.getElementById('modalBody').innerHTML =
+            '<div class="icon">⚠️</div><div class="msg">有 ' + missing.length + ' 项必填信息未填写</div>' +
+            '<div class="sub-msg" style="margin-bottom:12px;">' + missing.join('、') + '</div>' +
+            '<div class="sub-msg">可点击「保存草稿」暂存当前内容</div>';
+        document.getElementById('modalFooter').innerHTML =
+            '<button class="btn btn-default" onclick="hideModal();saveDraft()">保存草稿</button>' +
+            '<button class="btn btn-primary" onclick="hideModal()">继续填写</button>';
+        overlay.classList.remove('hidden');
+        // 滚动到第一个错误
+        const firstErr = document.querySelector('.error');
+        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+    }
+    return true;
+}
+
+function goNext() {
+    if (!validateForm()) return;
+    goStep(2);
+}
+function goPrev() {
+    goStep(1);
+}
+
+// ===== 物料上传（演示数据） =====
+const MAT_STATE = {
+    video: { seq: 0, names: ['3008.720p.mp4', 'EP01_noSub.mp4', 'EP02_noSub.mp4'], durs: ['1:40', '2:05', '1:58'], sizes: ['30.39MB', '42.10MB', '38.77MB'] },
+    srt:   { seq: 0, names: ['EP01_zh.srt', 'EP02_zh.srt', 'EP03_zh.srt'], durs: ['—', '—', '—'], sizes: ['84KB', '92KB', '88KB'] },
+    audio: { seq: 0, names: ['EP01_bgm.mp3', 'EP02_bgm.mp3', 'EP03_bgm.mp3'], durs: ['1:40', '2:05', '1:58'], sizes: ['3.2MB', '4.0MB', '3.8MB'] },
+    cheng: { seq: 0, names: ['EP01_final.mp4', 'EP02_final.mp4', 'EP03_final.mp4'], durs: ['1:40', '2:05', '1:58'], sizes: ['58.20MB', '71.44MB', '66.03MB'] }
+};
+const MAT_META = {
+    video: { tbody: 'videoTbody', empty: 'videoEmpty', count: 'videoCount', thumb: '🎬', label: '视频' },
+    srt:   { tbody: 'srtTbody',   empty: 'srtEmpty',   count: 'srtCount',   thumb: '📄', label: '字幕' },
+    audio: { tbody: 'audioTbody', empty: 'audioEmpty', count: 'audioCount', thumb: '🎵', label: '音频' },
+    cheng: { tbody: 'chengTbody', empty: 'chengEmpty', count: 'chengCount', thumb: '🎞️', label: '成片' }
+};
+
+function nowStr() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+}
+
+function addMaterialRow(type) {
+    const st = MAT_STATE[type];
+    const meta = MAT_META[type];
+    const i = st.seq % st.names.length;
+    st.seq++;
+    const tbody = document.getElementById(meta.tbody);
+    document.getElementById(meta.empty).style.display = 'none';
+
+    const tr = document.createElement('tr');
+    tr.dataset.matType = type;
+    const epCell = (type === 'video' || type === 'cheng') ? '<td class="mat-ep">第 ' + (tbody.children.length + 1) + ' 集</td>' : '';
+    tr.innerHTML =
+        '<td class="mat-order">' + (tbody.children.length + 1) + '</td>' +
+        epCell +
+        '<td><div class="mat-thumb" style="display:flex;align-items:center;justify-content:center;font-size:24px;">' + meta.thumb + '</div></td>' +
+        '<td><a class="file-link" href="javascript:void(0)">' + st.names[i] + '</a></td>' +
+        '<td>' + st.durs[i] + '</td>' +
+        '<td>' + st.sizes[i] + '</td>' +
+        '<td>' + nowStr() + '</td>' +
+        '<td><div class="row-actions">' +
+            '<button class="btn-mini primary" onclick="showToast(\'更新文件（演示）\')">更新文件</button>' +
+            '<button class="btn-mini default drag-handle" title="点击或按住拖拽调整顺序" onclick="openReorder(this)">调整顺序</button>' +
+            '<button class="btn-mini danger" onclick="delMaterialRow(this,\'' + type + '\')">删除</button>' +
+        '</div></td>';
+    tbody.appendChild(tr);
+    updateMatCount(type);
+}
+
+function delMaterialRow(btn, type) {
+    const tr = btn.closest('tr');
+    const tbody = tr.parentElement;
+    tr.remove();
+    renumberMat(type);
+    if (!tbody.children.length) {
+        document.getElementById(MAT_META[type].empty).style.display = '';
+    }
+    updateMatCount(type);
+}
+
+// 统一重新编号（顺序 + 集数）
+function renumberMat(type) {
+    const tbody = document.getElementById(MAT_META[type].tbody);
+    Array.from(tbody.children).forEach((row, idx) => {
+        row.querySelector('.mat-order').textContent = idx + 1;
+        const ep = row.querySelector('.mat-ep');
+        if (ep) ep.textContent = '第 ' + (idx + 1) + ' 集';
+    });
+}
+
+// ===== 调整顺序：弹窗 =====
+let reorderCtx = null; // { type, row, cur }
+function openReorder(btn) {
+    const tr = btn.closest('tr');
+    const type = tr.dataset.matType;
+    const tbody = tr.parentElement;
+    const cur = Array.from(tbody.children).indexOf(tr) + 1;
+    const total = tbody.children.length;
+    reorderCtx = { type: type, row: tr, cur: cur };
+
+    const overlay = document.getElementById('modalOverlay');
+    overlay.dataset.rebuild = '1';
+    document.getElementById('modalTitle').textContent = '调整顺序';
+    document.getElementById('modalBody').innerHTML =
+        '<div style="display:flex; align-items:center; justify-content:center; gap:10px; padding:6px 0 2px;">' +
+            '<span style="font-size:13px; color:#555;">当前顺序：</span>' +
+            '<span style="font-size:14px; font-weight:600;">' + cur + '</span>' +
+        '</div>' +
+        '<div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px;">' +
+            '<span style="font-size:13px; color:#555;">调整至第</span>' +
+            '<input type="number" id="reorderInput" min="0" max="' + total + '" value="' + cur + '" ' +
+                'style="width:70px; height:32px; border:1px solid #dcdfe6; border-radius:4px; text-align:center; font-size:13px; outline:none;">' +
+            '<span style="font-size:13px; color:#555;">集之后</span>' +
+        '</div>' +
+        '<div class="sub-msg" style="margin-top:10px;">填 0 表示移到最前面</div>';
+    document.getElementById('modalFooter').innerHTML =
+        '<button class="btn btn-default" onclick="hideModal()">取消</button>' +
+        '<button class="btn btn-primary" onclick="confirmReorder()">确认</button>';
+    overlay.classList.remove('hidden');
+}
+
+function confirmReorder() {
+    if (!reorderCtx) { hideModal(); return; }
+    const type = reorderCtx.type;
+    const tbody = document.getElementById(MAT_META[type].tbody);
+    const total = tbody.children.length;
+    let target = parseInt(document.getElementById('reorderInput').value, 10);
+    if (isNaN(target)) target = reorderCtx.cur;
+    target = Math.max(0, Math.min(total, target));
+
+    const row = reorderCtx.row;
+    row.remove();
+    // 目标=插入到第 target 集之后（target 为 1 基；0 表示最前）
+    const ref = tbody.children[target - 1] || null;
+    if (ref) {
+        tbody.insertBefore(row, ref.nextSibling);
+    } else {
+        tbody.insertBefore(row, tbody.firstChild);
+    }
+    renumberMat(type);
+    hideModal();
+    reorderCtx = null;
+}
+
+// ===== 调整顺序：按住「调整顺序」按钮拖拽 =====
+let dragState = null;
+document.addEventListener('mousedown', function (e) {
+    const handle = e.target.closest('.drag-handle');
+    if (!handle) return;
+    const tr = handle.closest('tr');
+    if (!tr) return;
+    dragState = { row: tr, tbody: tr.parentElement, type: tr.dataset.matType, moved: false };
+    tr.classList.add('dragging');
+    e.preventDefault(); // 防止选中文字
+});
+document.addEventListener('mousemove', function (e) {
+    if (!dragState) return;
+    dragState.moved = true;
+    const tbody = dragState.tbody;
+    const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r !== dragState.row);
+    let placed = false;
+    for (const r of rows) {
+        const rect = r.getBoundingClientRect();
+        if (e.clientY < rect.top + rect.height / 2) {
+            tbody.insertBefore(dragState.row, r);
+            placed = true;
+            break;
+        }
+    }
+    if (!placed) tbody.appendChild(dragState.row);
+});
+document.addEventListener('mouseup', function () {
+    if (!dragState) return;
+    const st = dragState;
+    st.row.classList.remove('dragging');
+    if (st.moved) renumberMat(st.type);
+    dragState = null;
+});
+
+function updateMatCount(type) {
+    const meta = MAT_META[type];
+    const n = document.getElementById(meta.tbody).children.length;
+    document.getElementById(meta.count).textContent = n;
+    // 同步一级入口计数
+    const entryMap = { video: 'entryVideoCount', srt: 'entrySrtCount', audio: 'entryAudioCount', cheng: 'entryChengCount' };
+    const e = document.getElementById(entryMap[type]);
+    if (e) e.textContent = n;
+}
+
+// ===== 物料上传：一级 / 二级页面切换 =====
+function openMaterial(type) {
+    document.getElementById('matEntry').classList.add('hidden');
+    ['video', 'srt', 'audio', 'cheng'].forEach(t => {
+        document.getElementById('mat_' + t).classList.toggle('hidden', t !== type);
+    });
+    window.scrollTo(0, 0);
+}
+function closeMaterial() {
+    ['video', 'srt', 'audio', 'cheng'].forEach(t => {
+        document.getElementById('mat_' + t).classList.add('hidden');
+    });
+    document.getElementById('matEntry').classList.remove('hidden');
+    window.scrollTo(0, 0);
+}
+
+function showToast(msg) {
+    const overlay = document.getElementById('modalOverlay');
+    overlay.dataset.rebuild = '1';
+    document.getElementById('modalTitle').textContent = '提示';
+    document.getElementById('modalBody').innerHTML = '<div class="icon">ℹ️</div><div class="msg">' + msg + '</div>';
+    document.getElementById('modalFooter').innerHTML = '<button class="btn btn-primary" onclick="hideModal()">知道了</button>';
+    overlay.classList.remove('hidden');
+}
+
+// ===== 保存草稿 / 提交 =====
+function saveDraft() {
+    const overlay = document.getElementById('modalOverlay');
+    overlay.dataset.rebuild = '1';
+    document.getElementById('modalTitle').textContent = '保存成功';
+    document.getElementById('modalBody').innerHTML = '<div class="icon">✅</div><div class="msg">草稿保存成功</div><div class="sub-msg">可在「我的草稿」中继续编辑</div>';
+    document.getElementById('modalFooter').innerHTML = '<button class="btn btn-primary" onclick="hideModal()">知道了</button>';
+    overlay.classList.remove('hidden');
+}
+
+function submitAll() {
+    // 校验必传物料：成片、无字幕视频、字幕 至少各传 1 条
+    clearErrors();
+    const needMats = [
+        { type: 'cheng', label: '成片上传' },
+        { type: 'video', label: '无字幕视频上传' },
+        { type: 'srt',   label: '字幕 srt 上传' }
+    ];
+    const missingMats = needMats.filter(m => document.getElementById(MAT_META[m.type].tbody).children.length === 0);
+
+    const overlay = document.getElementById('modalOverlay');
+    overlay.dataset.rebuild = '1';
+
+    if (missingMats.length) {
+        document.getElementById('modalTitle').textContent = '物料未上传完整';
+        document.getElementById('modalBody').innerHTML =
+            '<div class="icon">⚠️</div><div class="msg">有 ' + missingMats.length + ' 类必传物料未上传</div>' +
+            '<div class="sub-msg" style="margin-bottom:12px;">' + missingMats.map(m => m.label).join('、') + '</div>' +
+            '<div class="sub-msg">可点击「保存草稿」暂存当前内容</div>';
+        document.getElementById('modalFooter').innerHTML =
+            '<button class="btn btn-default" onclick="hideModal();saveDraft()">保存草稿</button>' +
+            '<button class="btn btn-primary" onclick="hideModal();gotoMaterial(\'' + missingMats[0].type + '\')">去上传</button>';
+        overlay.classList.remove('hidden');
+        return;
+    }
+
+    document.getElementById('modalTitle').textContent = '提交审核';
+    document.getElementById('modalBody').innerHTML = '<div class="icon">📤</div><div class="msg">确认提交审核？</div><div class="sub-msg">提交后将进入审核流程，审核期间不可编辑</div>';
+    document.getElementById('modalFooter').innerHTML = '<button class="btn btn-default" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="submitSuccess()">确认提交</button>';
+    overlay.classList.remove('hidden');
+}
+
+// 跳到指定物料的二级上传页
+function gotoMaterial(type) {
+    goStep(2);
+    openMaterial(type);
+}
+
+function showModal(type) {
+    const overlay = document.getElementById('modalOverlay');
+    overlay.dataset.rebuild = '1';
+    const title = document.getElementById('modalTitle');
+    const body = document.getElementById('modalBody');
+    const footer = document.getElementById('modalFooter');
+
+    if (type === 'cancel') {
+        title.textContent = '确认取消';
+        body.innerHTML = '<div class="icon">⚠️</div><div class="msg">确定要取消编辑吗？</div><div class="sub-msg">未保存的内容将会丢失</div>';
+        footer.innerHTML = '<button class="btn btn-default" onclick="hideModal()">继续编辑</button><button class="btn btn-danger" onclick="hideModal()">确认取消</button>';
+    }
+
+    overlay.classList.remove('hidden');
+}
+
+function submitSuccess() {
+    const body = document.getElementById('modalBody');
+    const footer = document.getElementById('modalFooter');
+    document.getElementById('modalTitle').textContent = '提交成功';
+    body.innerHTML = '<div class="icon">✅</div><div class="msg">已提交审核</div><div class="sub-msg">如需修改会在站内通知，请关注站内消息</div>';
+    footer.innerHTML = '<button class="btn btn-primary" onclick="hideModal()">返回列表</button>';
+    document.querySelector('.status-badge').className = 'status-badge pending';
+    document.querySelector('.status-badge').textContent = '● 审核中';
+    goStep(3); // 步骤 3：上传完成
+}
+
+function hideModal() {
+    const overlay = document.getElementById('modalOverlay');
+    overlay.classList.add('hidden');
+    // 拖拽调整顺序后，下一次「点击」应打开弹窗而非被忽略
+    if (overlay.dataset.rebuild) {
+        document.getElementById('modalBody').innerHTML = '';
+        document.getElementById('modalFooter').innerHTML = '';
+        delete overlay.dataset.rebuild;
+    }
+}
+</script>
+
+</body>
+</html>
