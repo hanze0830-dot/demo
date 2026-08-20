@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增译配流程记录 - Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .modal {
+            background: #fff;
+            width: 900px;
+            border-radius: 4px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid #eee;
+        }
+        .modal-header h3 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+        .modal-close {
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+        }
+        .modal-body {
+            padding: 24px 24px 16px;
+        }
+        .form-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            flex: 1;
+        }
+        .form-group.full {
+            flex: 0 0 100%;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form-label .required {
+            color: #f56c6c;
+            margin-left: 2px;
+        }
+        .form-label .new-tag {
+            display: inline-block;
+            background: #e6f7e6;
+            color: #52c41a;
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-left: 6px;
+            font-weight: normal;
+        }
+        .form-label .changed-tag {
+            display: inline-block;
+            background: #fff7e6;
+            color: #fa8c16;
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-left: 6px;
+            font-weight: normal;
+        }
+        .form-input,
+        .form-select {
+            width: 100%;
+            height: 36px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            padding: 0 12px;
+            font-size: 13px;
+            color: #606266;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #fff;
+        }
+        .form-input:focus,
+        .form-select:focus {
+            border-color: #409eff;
+        }
+        .form-input::placeholder {
+            color: #c0c4cc;
+        }
+        .form-input[readonly] {
+            background: #f5f7fa;
+            color: #909399;
+            cursor: not-allowed;
+        }
+        .form-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23909399' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 30px;
+        }
+        .form-textarea {
+            width: 100%;
+            min-height: 80px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #606266;
+            outline: none;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .form-textarea:focus {
+            border-color: #409eff;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+            margin-top: 8px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 12px 24px 20px;
+        }
+        .btn {
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid #dcdfe6;
+            background: #fff;
+            color: #606266;
+        }
+        .btn-primary {
+            background: #4db6ac;
+            border-color: #4db6ac;
+            color: #fff;
+        }
+        .tip-text {
+            font-size: 12px;
+            color: #909399;
+            margin-top: 4px;
+        }
+        .highlight-box {
+            border: 2px dashed #52c41a;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+            background: #f6ffed;
+        }
+        .highlight-box .highlight-title {
+            font-size: 13px;
+            color: #52c41a;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="modal">
+        <div class="modal-header">
+            <h3>新增译配流程记录</h3>
+            <span class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <!-- 原版短剧ID + 短剧名称 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">原版短剧ID <span class="changed-tag">改名</span></label>
+                    <input type="text" class="form-input" placeholder="选填，填写后自动带出名称" id="originalDramaId">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">短剧名称</label>
+                    <input type="text" class="form-input" readonly placeholder="" id="dramaName">
+                </div>
+            </div>
+
+            <!-- 新增字段区域 -->
+            <div class="highlight-box">
+                <div class="highlight-title">▼ 新增字段</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">目标语言-短剧ID <span class="new-tag">新增</span></label>
+                        <input type="text" class="form-input" placeholder="选填，优先用此剧ID算价格时长" id="targetDramaId">
+                        <div class="tip-text">填写后自动关联归属团队（若未填）；算价时优先取此剧时长</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">目标剧归属团队 <span class="required">*</span> <span class="new-tag">新增</span></label>
+                        <select class="form-select" id="targetTeam">
+                            <option value="">-请选择-</option>
+                            <option value="DB团队">DB团队</option>
+                            <option value="RL团队">RL团队</option>
+                            <option value="社媒团队">社媒团队</option>
+                            <option value="产研团队">产研团队</option>
+                        </select>
+                        <div class="tip-text">必填；填写目标语言-短剧ID时若此项为空会自动带入</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 译配需求名称 -->
+            <div class="form-row">
+                <div class="form-group full">
+                    <label class="form-label">译配需求名称 <span class="required">*</span></label>
+                    <input type="text" class="form-input" placeholder="请输入译配需求名称">
+                </div>
+            </div>
+
+            <!-- 服务类型 + 语言对 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">服务类型 <span class="required">*</span></label>
+                    <select class="form-select">
+                        <option>-请选择-</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">语言对 <span class="required">*</span></label>
+                    <select class="form-select">
+                        <option>请选择语言对</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 供应商 + 译配员 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">供应商 <span class="required">*</span></label>
+                    <select class="form-select">
+                        <option>请选择供应商</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">译配员 <span class="required">*</span></label>
+                    <select class="form-select">
+                        <option>请先选择供应商</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 译配模式 + 译配员标签 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">译配模式 <span class="required">*</span></label>
+                    <select class="form-select">
+                        <option>-请选择-</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">译配员标签</label>
+                    <input type="text" class="form-input" readonly>
+                </div>
+            </div>
+
+            <!-- 特殊属性 -->
+            <div class="section-title">特殊属性</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">等级</label>
+                    <select class="form-select">
+                        <option>不限</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">是否加急费</label>
+                    <select class="form-select">
+                        <option>不限</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">是否润色</label>
+                    <select class="form-select">
+                        <option>不限</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">配音音色</label>
+                    <select class="form-select">
+                        <option>不限</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">漫剧细分</label>
+                    <select class="form-select">
+                        <option>-请选择-</option>
+                    </select>
+                </div>
+                <div class="form-group"></div>
+            </div>
+
+            <!-- 译配验收时长 + 验收时间 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">译配验收时长（选填）</label>
+                    <input type="text" class="form-input" placeholder="敏感数据，默认取短剧的时长" id="durationDisplay">
+                    <div class="tip-text" id="durationTip"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">验收时间 <span class="required">*</span></label>
+                    <input type="text" class="form-input" value="2026-08-20">
+                </div>
+            </div>
+
+            <!-- 备注 -->
+            <div class="form-row">
+                <div class="form-group full">
+                    <label class="form-label">备注</label>
+                    <textarea class="form-textarea" placeholder=""></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn">取消</button>
+            <button class="btn btn-primary">保存</button>
+        </div>
+    </div>
+
+    <script>
+        // 模拟：根据目标语言-短剧ID自动填入归属团队
+        const targetDramaIdInput = document.getElementById('targetDramaId');
+        const targetTeamSelect = document.getElementById('targetTeam');
+        const durationTip = document.getElementById('durationTip');
+
+        // 模拟数据：目标剧ID -> 归属团队映射
+        const dramaTeamMap = {
+            '1001': 'DB团队',
+            '1002': 'RL团队',
+            '1003': '社媒团队',
+            '1004': '产研团队',
+        };
+
+        targetDramaIdInput.addEventListener('blur', function() {
+            const val = this.value.trim();
+            if (val && !targetTeamSelect.value) {
+                // 目标剧归属团队未填写时，自动根据目标语言-短剧ID填入
+                const team = dramaTeamMap[val] || 'DB团队';
+                targetTeamSelect.value = team;
+            }
+            // 更新时长提示
+            if (val) {
+                durationTip.textContent = '💡 算价时长将取【目标语言-短剧ID: ' + val + '】的时长';
+            } else {
+                durationTip.textContent = '';
+            }
+        });
+
+        // 原版短剧ID模拟带出名称
+        const originalDramaIdInput = document.getElementById('originalDramaId');
+        const dramaNameInput = document.getElementById('dramaName');
+        const nameMap = {
+            '2001': '霸道总裁爱上我',
+            '2002': '重生之都市修仙',
+            '2003': '闪婚后大佬宠翻天',
+        };
+        originalDramaIdInput.addEventListener('blur', function() {
+            const val = this.value.trim();
+            dramaNameInput.value = nameMap[val] || (val ? '(模拟)短剧名称-' + val : '');
+        });
+    </script>
+</body>
+</html>
