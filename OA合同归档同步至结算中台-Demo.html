@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OA合同归档同步至结算中台 - 交互Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f0f2f5; color: #333; font-size: 13px; }
+
+        /* ===== Layout ===== */
+        .layout { display: flex; min-height: 100vh; flex-direction: column; }
+        .topbar { height: 42px; background: #1a2234; display: flex; align-items: center; padding: 0 16px; flex-shrink: 0; z-index: 10; }
+        .topbar-logo { width: 32px; height: 32px; background: linear-gradient(135deg, #0db2b2, #0a8f8f); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; }
+        .topbar-logo svg { width: 18px; height: 18px; fill: #fff; }
+        .topbar-user { font-size: 12px; color: rgba(255,255,255,0.7); margin-right: 20px; line-height: 1.3; }
+        .topbar-user strong { color: #fff; font-weight: 500; display: block; font-size: 12px; }
+        .topbar-user small { font-size: 11px; color: rgba(255,255,255,0.45); }
+        .topbar-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.12); margin: 0 12px; }
+        .topbar-tabs { display: flex; align-items: center; gap: 6px; flex: 1; }
+        .topbar-tab { height: 26px; padding: 0 12px; border-radius: 4px; font-size: 12px; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 4px; cursor: pointer; background: rgba(255,255,255,0.06); }
+        .topbar-tab:hover { background: rgba(255,255,255,0.12); color: #fff; }
+        .topbar-tab.active { background: rgba(13,178,178,0.25); color: #5ee6e6; }
+        .topbar-right { display: flex; align-items: center; gap: 16px; margin-left: auto; }
+        .topbar-right a { font-size: 12px; color: rgba(255,255,255,0.55); cursor: pointer; text-decoration: none; }
+        .topbar-right a:hover { color: #fff; }
+
+        .body-row { display: flex; flex: 1; }
+
+        /* ===== Sidebar ===== */
+        .sidebar { width: 180px; background: #2c3448; flex-shrink: 0; overflow-y: auto; padding-bottom: 20px; }
+        .sidebar::-webkit-scrollbar { width: 0; }
+        .menu-group { margin-top: 4px; }
+        .menu-group-title { padding: 10px 16px 4px; font-size: 11px; color: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+        .menu-group-title:hover { color: rgba(255,255,255,0.5); }
+        .menu-group-title svg { width: 12px; height: 12px; transition: transform .2s; }
+        .menu-item { display: flex; align-items: center; padding: 8px 16px 8px 24px; color: rgba(255,255,255,0.55); cursor: pointer; transition: all .15s; font-size: 13px; border-left: 3px solid transparent; }
+        .menu-item:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04); }
+        .menu-item.active { color: #fff; background: rgba(13,178,178,0.15); border-left-color: #0db2b2; }
+
+        /* ===== Main ===== */
+        .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .page-header { padding: 16px 24px 0; }
+        .page-title { font-size: 16px; font-weight: 600; color: #1a1a2e; display: flex; align-items: center; gap: 8px; }
+        .page-title::before { content: ''; width: 4px; height: 18px; background: #0db2b2; border-radius: 2px; }
+        .content { flex: 1; padding: 16px 24px 24px; overflow-y: auto; }
+
+        /* ===== Card ===== */
+        .card { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 16px; }
+        .card-body { padding: 16px 20px; }
+
+        /* ===== Sync bar ===== */
+        .sync-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .sync-info { font-size: 12px; color: #999; }
+        .sync-info strong { color: #0db2b2; }
+        .toolbar { display: flex; gap: 8px; }
+
+        /* ===== Filter ===== */
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 3px; }
+        .filter-group label { font-size: 12px; color: #999; }
+        .filter-group label .req { color: #e74c3c; margin-right: 2px; }
+        .filter-group input, .filter-group select { height: 30px; border: 1px solid #d9d9d9; border-radius: 3px; padding: 0 8px; font-size: 13px; background: #fff; min-width: 140px; }
+        .filter-group input:focus, .filter-group select:focus { outline: none; border-color: #0db2b2; box-shadow: 0 0 0 2px rgba(13,178,178,0.12); }
+        .filter-group input::placeholder { color: #bbb; }
+
+        /* ===== Buttons ===== */
+        .btn { display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 14px; border: 1px solid #d9d9d9; border-radius: 3px; font-size: 13px; cursor: pointer; background: #fff; color: #333; transition: all .15s; }
+        .btn:hover { border-color: #0db2b2; color: #0db2b2; }
+        .btn-primary { background: #0db2b2; color: #fff; border-color: #0db2b2; }
+        .btn-primary:hover { background: #0a9e9e; border-color: #0a9e9e; color: #fff; }
+        .btn svg { width: 14px; height: 14px; }
+        .btn-view { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border: 1px solid #0db2b2; border-radius: 3px; font-size: 12px; cursor: pointer; background: #fff; color: #0db2b2; transition: all .15s; }
+        .btn-view:hover { background: #0db2b2; color: #fff; }
+
+        /* ===== Table ===== */
+        .table-wrapper { overflow-x: auto; }
+        table.data-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1200px; }
+        table.data-table th { background: #f7f8fa; border-bottom: 1px solid #e8e8e8; padding: 9px 12px; text-align: left; font-weight: 600; color: #666; font-size: 12px; white-space: nowrap; }
+        table.data-table td { border-bottom: 1px solid #f0f0f0; padding: 9px 12px; color: #333; }
+        table.data-table tr:hover td { background: #f9fafa; }
+        .tag { display: inline-block; padding: 1px 8px; border-radius: 3px; font-size: 12px; }
+        .tag-green { background: #e8f8f0; color: #0db2b2; border: 1px solid #a3e4d7; }
+        .tag-red { background: #fef0ef; color: #e74c3c; border: 1px solid #f5b7b1; }
+        .tag-blue { background: #e8f6f6; color: #0a8f8f; border: 1px solid #a6d8d8; }
+        .tag-orange { background: #fef5e7; color: #e67e22; border: 1px solid #f9d29d; }
+        .tag-purple { background: #f4ecf7; color: #8e44ad; border: 1px solid #d2b4de; }
+        .price-cell { font-weight: 700; color: #0db2b2; font-size: 14px; }
+
+        /* ===== Pagination ===== */
+        .pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; font-size: 13px; color: #666; border-top: 1px solid #f0f0f0; }
+        .pagination-btns { display: flex; gap: 4px; }
+        .page-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #d9d9d9; border-radius: 3px; cursor: pointer; background: #fff; font-size: 12px; }
+        .page-btn:hover { border-color: #0db2b2; color: #0db2b2; }
+        .page-btn.active { background: #0db2b2; color: #fff; border-color: #0db2b2; }
+
+        /* ===== Fullscreen Modal ===== */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: center; justify-content: center; }
+        .modal-overlay.visible { display: flex; }
+        .modal { width: calc(100vw - 80px); height: calc(100vh - 60px); background: #f0f2f5; border-radius: 6px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; animation: modalIn .2s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; background: #fff; border-bottom: 1px solid #e8e8e8; flex-shrink: 0; }
+        .modal-header h3 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .modal-header h3::before { content: ''; width: 4px; height: 16px; background: #0db2b2; border-radius: 2px; }
+        .modal-close { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: none; background: none; cursor: pointer; font-size: 20px; color: #999; border-radius: 4px; }
+        .modal-close:hover { background: #f0f0f0; color: #333; }
+        .modal-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+        /* ===== Detail sections ===== */
+        .detail-section { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 16px; overflow: hidden; }
+        .detail-section-title { font-size: 14px; font-weight: 600; color: #1a1a2e; padding: 12px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 8px; background: #fafbfc; }
+        .detail-section-title::before { content: ''; width: 3px; height: 14px; background: #0db2b2; border-radius: 2px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; padding: 4px 20px 12px; }
+        .detail-item { padding: 10px 12px 10px 0; border-bottom: 1px solid #f8f8f8; display: flex; align-items: baseline; gap: 8px; }
+        .detail-item.full { grid-column: 1 / -1; }
+        .detail-label { font-size: 12px; color: #999; white-space: nowrap; min-width: 90px; flex-shrink: 0; }
+        .detail-value { font-size: 13px; color: #333; }
+        .detail-value.highlight { font-size: 22px; font-weight: 700; color: #0db2b2; }
+        .detail-value .unit { font-size: 12px; color: #999; font-weight: 400; margin-left: 2px; }
+        .price-highlight-card { background: linear-gradient(135deg, #e8f8f6 0%, #f0fffe 100%); border: 1px solid #b2e0db; border-radius: 6px; padding: 14px 20px; margin: 8px 0; }
+        .price-highlight-card .detail-label { color: #0a8f8f; font-weight: 600; font-size: 13px; }
+        .link { color: #0db2b2; cursor: pointer; text-decoration: none; }
+        .link:hover { text-decoration: underline; }
+
+        /* ===== Toast ===== */
+        #toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(0,0,0,0.75); color: #fff; padding: 12px 24px; border-radius: 6px; font-size: 14px; z-index: 999; display: none; }
+
+        .demo-badge { position: fixed; bottom: 16px; right: 16px; background: #0db2b2; color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 12px; z-index: 300; box-shadow: 0 2px 8px rgba(13,178,178,0.4); }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="topbar-logo">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="topbar-user">
+            <strong>超级管理员</strong>
+            <small>管理员</small>
+        </div>
+        <div class="topbar-sep"></div>
+        <div class="topbar-tabs">
+            <div class="topbar-tab">首页</div>
+            <div class="topbar-tab active">合同管理 &times;</div>
+        </div>
+        <div class="topbar-right">
+            <a>下载中心</a>
+            <a>技术反馈</a>
+            <a>主题</a>
+            <a>退出</a>
+        </div>
+    </div>
+
+    <div class="body-row">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="menu-group">
+                <div class="menu-group-title">
+                    系统管理
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+            </div>
+            <div class="menu-group">
+                <div class="menu-group-title">
+                    结算中台
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform:rotate(180deg)"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="menu-item">结算管理</div>
+                <div class="menu-item">客户管理</div>
+                <div class="menu-item active">合同管理</div>
+                <div class="menu-item">对账管理</div>
+                <div class="menu-item">付款管理</div>
+            </div>
+            <div class="menu-group">
+                <div class="menu-group-title">
+                    海外内容中台
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+            </div>
+            <div class="menu-group">
+                <div class="menu-group-title">
+                    海外版权中台
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+            </div>
+            <div class="menu-group">
+                <div class="menu-group-title">
+                    便捷工具
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+            </div>
+            <div class="menu-group">
+                <div class="menu-group-title">
+                    系统设置
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main -->
+        <div class="main">
+            <div class="page-header">
+                <div class="page-title">合同管理</div>
+            </div>
+
+            <div class="content">
+                <!-- Sync bar -->
+                <div class="sync-bar">
+                    <div class="sync-info">最近同步时间：<strong>2026-09-07 03:00:12</strong> &nbsp;|&nbsp; 合同总数：<strong>1,286</strong> 条</div>
+                    <div class="toolbar">
+                        <button class="btn" onclick="handleSync()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                            同步数据
+                        </button>
+                        <button class="btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            导出
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="filter-bar">
+                            <div class="filter-group">
+                                <label>关键词搜索</label>
+                                <input type="text" placeholder="合同编号/合同名称/客户名称" style="min-width: 220px;">
+                            </div>
+                            <div class="filter-group">
+                                <label>合同类别</label>
+                                <select><option>--请选择--</option><option>版权采购</option><option>版权授权</option><option>技术服务</option></select>
+                            </div>
+                            <div class="filter-group">
+                                <label>业务类型</label>
+                                <select><option>--请选择--</option><option>短剧</option><option>小说</option><option>漫画</option></select>
+                            </div>
+                            <div class="filter-group">
+                                <label>新签/续约</label>
+                                <select><option>--请选择--</option><option>新签</option><option>续约</option><option>补充协议</option></select>
+                            </div>
+                            <div class="filter-group">
+                                <label>合同状态</label>
+                                <select><option>--请选择--</option><option>生效中</option><option>已到期</option></select>
+                            </div>
+                            <div class="filter-group">
+                                <label>合同生效日期</label>
+                                <input type="date">
+                            </div>
+                            <div class="filter-group">
+                                <label>至</label>
+                                <input type="date">
+                            </div>
+                            <button class="btn btn-primary" style="align-self: flex-end;">检索</button>
+                            <button class="btn" style="align-self: flex-end;">重置</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="card">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>合同编号</th>
+                                    <th>合同名称</th>
+                                    <th>公司名称</th>
+                                    <th>客户名称</th>
+                                    <th>合同类别</th>
+                                    <th>业务类型</th>
+                                    <th>新签/续约</th>
+                                    <th>单价</th>
+                                    <th>对方分成比例</th>
+                                    <th>生效日期</th>
+                                    <th>结束日期</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>HT-2026-001</td>
+                                    <td>《逆风翻盘》版权采购合同</td>
+                                    <td>深圳枫叶互娱</td>
+                                    <td>杭州星澜文化</td>
+                                    <td>版权采购</td>
+                                    <td>短剧</td>
+                                    <td><span class="tag tag-blue">新签</span></td>
+                                    <td class="price-cell">1,200</td>
+                                    <td>45%</td>
+                                    <td>2026-03-01</td>
+                                    <td>2027-02-28</td>
+                                    <td><span class="tag tag-green">生效中</span></td>
+                                    <td><button class="btn-view" onclick="openDetail('HT-2026-001')">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td>HT-2026-002</td>
+                                    <td>《重生之都市医仙》版权采购</td>
+                                    <td>深圳枫叶互娱</td>
+                                    <td>北京墨韵科技</td>
+                                    <td>版权采购</td>
+                                    <td>短剧</td>
+                                    <td><span class="tag tag-orange">续约</span></td>
+                                    <td class="price-cell">800</td>
+                                    <td>50%</td>
+                                    <td>2026-04-15</td>
+                                    <td>2027-04-14</td>
+                                    <td><span class="tag tag-green">生效中</span></td>
+                                    <td><button class="btn-view" onclick="openDetail('HT-2026-002')">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td>HT-2026-003</td>
+                                    <td>《豪门弃妇的逆袭》版权合同</td>
+                                    <td>深圳枫叶互娱</td>
+                                    <td>上海云起文学</td>
+                                    <td>版权采购</td>
+                                    <td>小说</td>
+                                    <td><span class="tag tag-blue">新签</span></td>
+                                    <td class="price-cell">15</td>
+                                    <td>55%</td>
+                                    <td>2026-01-10</td>
+                                    <td>2027-01-09</td>
+                                    <td><span class="tag tag-green">生效中</span></td>
+                                    <td><button class="btn-view" onclick="openDetail('HT-2026-003')">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td>HT-2025-088</td>
+                                    <td>《总裁的秘密情人》版权采购</td>
+                                    <td>深圳枫叶互娱</td>
+                                    <td>成都锦书文化</td>
+                                    <td>版权采购</td>
+                                    <td>短剧</td>
+                                    <td><span class="tag tag-blue">新签</span></td>
+                                    <td class="price-cell">650</td>
+                                    <td>40%</td>
+                                    <td>2025-06-01</td>
+                                    <td>2026-05-31</td>
+                                    <td><span class="tag tag-red">已到期</span></td>
+                                    <td><button class="btn-view" onclick="openDetail('HT-2025-088')">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td>HT-2026-015</td>
+                                    <td>《龙王赘婿》版权续约合同</td>
+                                    <td>深圳枫叶互娱</td>
+                                    <td>广州阅文科技</td>
+                                    <td>版权采购</td>
+                                    <td>短剧</td>
+                                    <td><span class="tag tag-orange">续约</span></td>
+                                    <td class="price-cell">1,500</td>
+                                    <td>48%</td>
+                                    <td>2026-06-01</td>
+                                    <td>2027-05-31</td>
+                                    <td><span class="tag tag-green">生效中</span></td>
+                                    <td><button class="btn-view" onclick="openDetail('HT-2026-015')">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td>HT-2026-023</td>
+                                    <td>《闪婚后大佬宠妻无度》补充协议</td>
+                                    <td>深圳枫叶互娱</td>
+                                    <td>杭州星澜文化</td>
+                                    <td>版权采购</td>
+                                    <td>短剧</td>
+                                    <td><span class="tag tag-purple">补充协议</span></td>
+                                    <td class="price-cell">900</td>
+                                    <td>45%</td>
+                                    <td>2026-07-01</td>
+                                    <td>2027-02-28</td>
+                                    <td><span class="tag tag-green">生效中</span></td>
+                                    <td><button class="btn-view" onclick="openDetail('HT-2026-023')">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td>HT-2026-031</td>
+                                    <td>《穿越之女帝传奇》版权采购</td>
+                                    <td>深圳枫叶互娱</td>
+                                    <td>武汉天蚕文化</td>
+                                    <td>版权采购</td>
+                                    <td>短剧</td>
+                                    <td><span class="tag tag-blue">新签</span></td>
+                                    <td class="price-cell">2,000</td>
+                                    <td>50%</td>
+                                    <td>2026-08-01</td>
+                                    <td>2027-07-31</td>
+                                    <td><span class="tag tag-green">生效中</span></td>
+                                    <td><button class="btn-view" onclick="openDetail('HT-2026-031')">查看</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <div>共 1,286 条记录 &nbsp; 每页
+                            <select style="height:26px; border:1px solid #d9d9d9; border-radius:3px; font-size:12px; padding:0 4px;">
+                                <option>20</option><option>50</option><option>100</option>
+                            </select> 条
+                        </div>
+                        <div class="pagination-btns">
+                            <div class="page-btn">&lt;</div>
+                            <div class="page-btn active">1</div>
+                            <div class="page-btn">2</div>
+                            <div class="page-btn">3</div>
+                            <div class="page-btn">...</div>
+                            <div class="page-btn">65</div>
+                            <div class="page-btn">&gt;</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fullscreen Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeDetail()">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>合同详情 - <span id="modalContractNo">HT-2026-001</span></h3>
+            <button class="modal-close" onclick="closeDetail()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- 合同详情 -->
+            <div class="detail-section">
+                <div class="detail-section-title">合同详情</div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">合同编号</div>
+                        <div class="detail-value">HT-2026-001</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">合同名称</div>
+                        <div class="detail-value">《逆风翻盘》版权采购合同</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">经办部门</div>
+                        <div class="detail-value">DramaBox-DB_业务中心-DB_产品运营部-DB_基础产运组</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">合同发起人</div>
+                        <div class="detail-value">韩泽</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">申请日期</div>
+                        <div class="detail-value">2026-02-18</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">公司名称</div>
+                        <div class="detail-value">深圳枫叶互娱</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">合同类别</div>
+                        <div class="detail-value">版权采购</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">业务类型</div>
+                        <div class="detail-value">短剧</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">合作方类型</div>
+                        <div class="detail-value">客户</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">生效日期</div>
+                        <div class="detail-value">2026-03-01</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">结束日期</div>
+                        <div class="detail-value">2027-02-28</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">币种</div>
+                        <div class="detail-value">人民币</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">框架协议</div>
+                        <div class="detail-value">否</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">新签/续约</div>
+                        <div class="detail-value"><span class="tag tag-blue">新签</span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">关联主合同</div>
+                        <div class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">合同有效期</div>
+                        <div class="detail-value">365 天</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">作者合同类型</div>
+                        <div class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item full">
+                        <div class="detail-label">备注</div>
+                        <div class="detail-value">采购《逆风翻盘》短剧版权，共80集，独家授权在DramaBox全球平台播出，含翻译改编权。</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 客户信息 -->
+            <div class="detail-section">
+                <div class="detail-section-title">客户信息</div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">客户</div>
+                        <div class="detail-value">杭州星澜文化传媒有限公司</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">客户名称</div>
+                        <div class="detail-value">杭州星澜文化</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">客户编号</div>
+                        <div class="detail-value">KH-20231205</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">客户开户行</div>
+                        <div class="detail-value">中国工商银行杭州西湖支行</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">客户账号</div>
+                        <div class="detail-value">1202 0236 0920 *****</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">合同总金额</div>
+                        <div class="detail-value">96,000 元</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 版权信息 -->
+            <div class="detail-section">
+                <div class="detail-section-title">版权信息</div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">版权方向</div>
+                        <div class="detail-value">采购</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">合同小类</div>
+                        <div class="detail-value">短剧版权采购</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">收益分配方式</div>
+                        <div class="detail-value">固定单价 + 分成</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">合作权利</div>
+                        <div class="detail-value">信息网络传播权、翻译权、改编权</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">授权平台</div>
+                        <div class="detail-value">DramaBox</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">转授权</div>
+                        <div class="detail-value">允许</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">合作区域</div>
+                        <div class="detail-value">全球</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">对方分成比例</div>
+                        <div class="detail-value" style="font-weight:600;">45%</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">元/千字</div>
+                        <div class="detail-value">--</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">成本计算方式</div>
+                        <div class="detail-value">单价*时长</div>
+                    </div>
+                    <div class="detail-item full price-highlight-card">
+                        <div class="detail-label">单价（核心结算字段）</div>
+                        <div class="detail-value highlight">1,200<span class="unit">元/集</span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">合作周期</div>
+                        <div class="detail-value">12个月</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">分成模板</div>
+                        <div class="detail-value">标准短剧分成模板A</div>
+                    </div>
+                    <div class="detail-item full">
+                        <div class="detail-label">cp接口id</div>
+                        <div class="detail-value">CP-XINGLAN-001</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 签署信息 -->
+            <div class="detail-section">
+                <div class="detail-section-title">签署信息</div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">签署类型</div>
+                        <div class="detail-value">线下签</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">申报印花税</div>
+                        <div class="detail-value">否</div>
+                    </div>
+                    <div class="detail-item full">
+                        <div class="detail-label">合同附件</div>
+                        <div class="detail-value"><a class="link">逆风翻盘_版权采购合同_v2.pdf</a></div>
+                    </div>
+                    <div class="detail-item full">
+                        <div class="detail-label">签署完成附件</div>
+                        <div class="detail-value"><a class="link">逆风翻盘_签署完成_盖章版.pdf</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<div class="demo-badge">交互 Demo</div>
+
+<script>
+function openDetail(contractNo) {
+    document.getElementById('modalContractNo').textContent = contractNo;
+    document.getElementById('modalOverlay').classList.add('visible');
+}
+
+function closeDetail() {
+    document.getElementById('modalOverlay').classList.remove('visible');
+}
+
+function handleSync() {
+    showToast('正在同步 OA 合同数据...');
+    setTimeout(() => {
+        showToast('同步完成！新增 3 条，更新 12 条');
+    }, 1500);
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 2000);
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDetail();
+});
+</script>
+
+</body>
+</html>

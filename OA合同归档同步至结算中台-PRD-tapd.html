@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OA合同归档同步至结算中台 - TAPD版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f5f6fa; color: #2d3436; line-height: 1.6; padding: 40px 20px; }
+        .copy-btn { position: sticky; top: 0; z-index: 100; display: block; width: 100%; max-width: 960px; margin: 0 auto 20px; padding: 12px 24px; background: #4a6cf7; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; }
+        .copy-btn:hover { background: #3a5ce5; }
+        .copy-btn:active { background: #2a4cd5; }
+        .copy-success { background: #27ae60 !important; }
+        #copyArea { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 48px; }
+        h1 { font-size: 22px; font-weight: 700; margin-bottom: 20px; color: #1a1a2e; }
+        h2 { font-size: 17px; font-weight: 600; margin: 28px 0 12px; color: #1a1a2e; border-left: 4px solid #4a6cf7; padding-left: 12px; }
+        h3 { font-size: 14px; font-weight: 600; margin: 12px 0 6px; color: #2d3436; }
+        p, li { font-size: 13px; color: #4a4a4a; }
+        ul { padding-left: 20px; margin: 6px 0; }
+        li { margin: 3px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+        th, td { border: 1px solid #e0e0e0; padding: 8px 12px; text-align: left; vertical-align: top; }
+        th { background: #f8f9fa; font-weight: 600; color: #1a1a2e; }
+        .detail-table th:first-child { width: 60%; }
+        .detail-table th:last-child { width: 40%; }
+        code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+        .proto-placeholder { background: #f8f9fa; border: 2px dashed #d0d0d0; border-radius: 6px; padding: 20px 12px; text-align: center; color: #999; font-size: 12px; }
+        .highlight { background: #fff8e1; padding: 2px 4px; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+<button class="copy-btn" id="copyBtn" onclick="copyContent()">一键复制（粘贴到TAPD）</button>
+
+<div id="copyArea">
+
+    <h1>OA合同归档数据同步至结算中台</h1>
+
+    <table>
+        <tr><th>文档版本</th><th>变动日期</th><th>产品经理</th><th>优先级</th><th>变动内容</th></tr>
+        <tr><td>V1.0</td><td>2026-09-07</td><td>韩泽(Zephyr)</td><td>P1</td><td>初始版本</td></tr>
+    </table>
+
+    <h2>1. 需求背景</h2>
+    <h3>业务背景</h3>
+    <p>当前公司合同管理流程在 OA 系统中完成，合同归档后数据仅存储在 OA 内。结算中台在进行内容结算时，需要依赖合同中的关键信息（尤其是<strong>单价</strong>、分成比例、合作周期等版权信息），目前只能由结算人员手动前往 OA 系统查询合同详情后再回到结算中台操作，流程割裂、效率低下且容易出错。</p>
+    <h3>用户场景</h3>
+    <ul>
+        <li>结算人员在中台发起结算时，需要查看对应合同的单价、分成比例等字段，当前只能另开 OA 系统逐一查找</li>
+        <li>结算主管需要按合同维度汇总结算情况，缺少合同数据在中台的统一视图</li>
+        <li>合同到期续约时，需要快速查看历史合同条款作为参考</li>
+    </ul>
+    <h3>业务价值</h3>
+    <ul>
+        <li>打通 OA 与结算中台的合同数据链路，消除信息孤岛</li>
+        <li>结算中台内直接查看合同详情，减少系统切换和人工查找成本</li>
+        <li>为后续结算流程自动关联合同单价、自动核算等能力打下数据基础</li>
+    </ul>
+
+    <h2>2. 功能概述</h2>
+    <p>在结算中台新增「合同管理」菜单，通过对接 OA 系统接口，定时同步所有已归档合同数据。以<strong>合同编号</strong>作为唯一标识，展示合同详情、客户信息、版权信息等完整字段。支持列表查看、搜索筛选和详情查看能力。</p>
+
+    <h2>3. 需求详情</h2>
+    <table class="detail-table">
+        <tr><th>说明</th><th>原型</th></tr>
+
+        <!-- 3.1 新增菜单 -->
+        <tr>
+            <td>
+                <h3>3.1 新增「合同管理」菜单</h3>
+                <p><strong>1、概述</strong></p>
+                <ul>
+                    <li>在结算中台左侧导航新增一级菜单入口</li>
+                </ul>
+                <p><strong>2、详细内容</strong></p>
+                <p>1）菜单名称：「合同管理」</p>
+                <p>2）菜单位置：结算中台左侧导航栏，建议放在现有菜单之后</p>
+                <p>3）点击进入合同列表页</p>
+                <p>4）菜单权限：继承结算中台现有权限体系，需有合同管理查看权限的角色方可见</p>
+                <p><strong>3、特殊说明</strong></p>
+                <ul>
+                    <li>该菜单为只读展示，不涉及合同的新增/编辑/删除操作（合同增删改仍在 OA 系统中完成）</li>
+                </ul>
+            </td>
+            <td>
+                <div class="proto-placeholder">截图：导航菜单位置示意<br>（从 Demo 截取）</div>
+            </td>
+        </tr>
+
+        <!-- 3.2 合同列表页 -->
+        <tr>
+            <td>
+                <h3>3.2 合同列表页</h3>
+                <p><strong>1、概述</strong></p>
+                <ul>
+                    <li>以表格形式展示所有已归档合同的核心字段，支持搜索与筛选</li>
+                </ul>
+                <p><strong>2、详细内容</strong></p>
+                <p>1）列表字段（列顺序如下）：</p>
+                <table>
+                    <tr><th>列名</th><th>来源字段</th><th>说明</th></tr>
+                    <tr><td>合同编号</td><td>合同编号</td><td>唯一标识，支持点击跳转详情</td></tr>
+                    <tr><td>合同名称</td><td>合同/结算单名称</td><td>-</td></tr>
+                    <tr><td>公司名称</td><td>公司名称</td><td>-</td></tr>
+                    <tr><td>客户名称</td><td>客户名称</td><td>-</td></tr>
+                    <tr><td>合同类别</td><td>合同类别</td><td>-</td></tr>
+                    <tr><td>业务类型</td><td>业务类型</td><td>-</td></tr>
+                    <tr><td>合作方类型</td><td>合作方类型</td><td>如「客户」</td></tr>
+                    <tr><td>新签/续约</td><td>新签/续约</td><td>新签 / 续约 / 补充协议</td></tr>
+                    <tr><td>单价</td><td>版权信息 - 单价</td><td class="highlight"><strong>核心字段</strong>，高亮展示</td></tr>
+                    <tr><td>对方分成比例</td><td>版权信息 - 对方分成比例</td><td>百分比显示</td></tr>
+                    <tr><td>合同生效日期</td><td>合同生效日期</td><td>-</td></tr>
+                    <tr><td>合同结束日期</td><td>合同结束日期</td><td>-</td></tr>
+                    <tr><td>合同状态</td><td>根据有效期计算</td><td>生效中 / 已到期</td></tr>
+                </table>
+                <p>2）搜索：支持按合同编号、合同名称、客户名称进行关键词搜索</p>
+                <p>3）筛选条件：</p>
+                <ul>
+                    <li>合同类别（下拉多选）</li>
+                    <li>业务类型（下拉多选）</li>
+                    <li>新签/续约（下拉单选：全部 / 新签 / 续约 / 补充协议）</li>
+                    <li>合同状态（下拉单选：全部 / 生效中 / 已到期）</li>
+                    <li>合同生效日期（日期范围）</li>
+                    <li>合同结束日期（日期范围）</li>
+                </ul>
+                <p>4）排序：默认按合同结束日期降序排列，支持点击列头切换排序</p>
+                <p>5）分页：每页 20 条，支持切换每页条数（20/50/100）</p>
+                <p><strong>3、特殊说明</strong></p>
+                <ul>
+                    <li>「单价」列建议以醒目样式展示（如加粗或带背景色），方便结算人员快速定位</li>
+                    <li>合同状态为计算字段：当前日期在生效日期和结束日期之间为「生效中」，超过结束日期为「已到期」</li>
+                    <li>列表仅展示已归档的合同，未归档/审批中的合同不同步</li>
+                </ul>
+            </td>
+            <td>
+                <div class="proto-placeholder">截图：合同列表页<br>（从 Demo 截取）</div>
+            </td>
+        </tr>
+
+        <!-- 3.3 合同详情页 -->
+        <tr>
+            <td>
+                <h3>3.3 合同详情页</h3>
+                <p><strong>1、概述</strong></p>
+                <ul>
+                    <li>展示单个合同的全部字段信息，按分组卡片排列</li>
+                </ul>
+                <p><strong>2、详细内容</strong></p>
+                <p>1）入口：列表页点击合同编号，进入详情页（或以抽屉形式展开）</p>
+                <p>2）详情分为以下信息分组：</p>
+                <p><strong>分组一：合同详情</strong></p>
+                <table>
+                    <tr><th>字段名</th><th>类型</th><th>说明</th></tr>
+                    <tr><td>合同编号</td><td>文本</td><td>唯一标识</td></tr>
+                    <tr><td>合同/结算单名称</td><td>文本</td><td>-</td></tr>
+                    <tr><td>经办部门</td><td>文本</td><td>-</td></tr>
+                    <tr><td>合同发起人</td><td>文本</td><td>-</td></tr>
+                    <tr><td>申请日期</td><td>日期</td><td>-</td></tr>
+                    <tr><td>公司名称</td><td>文本</td><td>-</td></tr>
+                    <tr><td>合同类别</td><td>枚举</td><td>-</td></tr>
+                    <tr><td>业务类型</td><td>枚举</td><td>-</td></tr>
+                    <tr><td>合作方类型</td><td>枚举</td><td>如「客户」</td></tr>
+                    <tr><td>合同生效日期</td><td>日期</td><td>-</td></tr>
+                    <tr><td>合同结束日期</td><td>日期</td><td>-</td></tr>
+                    <tr><td>币种</td><td>枚举</td><td>如「人民币」</td></tr>
+                    <tr><td>是否为框架协议</td><td>是/否</td><td>-</td></tr>
+                    <tr><td>新签/续约</td><td>枚举</td><td>新签 / 续约 / 补充协议</td></tr>
+                    <tr><td>关联主合同</td><td>文本</td><td>续约/补充协议时关联的原合同编号</td></tr>
+                    <tr><td>合同有效期</td><td>数字</td><td>X 天</td></tr>
+                    <tr><td>作者合同类型</td><td>枚举</td><td>-</td></tr>
+                    <tr><td>备注</td><td>长文本</td><td>合同核心条款概述</td></tr>
+                </table>
+                <p><strong>分组二：客户信息</strong></p>
+                <table>
+                    <tr><th>字段名</th><th>类型</th><th>说明</th></tr>
+                    <tr><td>客户</td><td>文本</td><td>客户选择值</td></tr>
+                    <tr><td>客户名称</td><td>文本</td><td>-</td></tr>
+                    <tr><td>客户编号</td><td>文本</td><td>-</td></tr>
+                    <tr><td>客户开户行</td><td>文本</td><td>-</td></tr>
+                    <tr><td>客户账号</td><td>文本</td><td>-</td></tr>
+                    <tr><td>客户合同总金额</td><td>金额</td><td>单位：元</td></tr>
+                </table>
+                <p><strong>分组三：版权信息</strong>（仅「是否涉及版权信息」为「是」时展示）</p>
+                <table>
+                    <tr><th>字段名</th><th>类型</th><th>说明</th></tr>
+                    <tr><td>版权方向</td><td>枚举</td><td>-</td></tr>
+                    <tr><td>合同小类</td><td>枚举</td><td>-</td></tr>
+                    <tr><td>收益分配方式</td><td>枚举</td><td>-</td></tr>
+                    <tr><td>合作权利</td><td>多选枚举</td><td>可多选</td></tr>
+                    <tr><td>授权平台</td><td>枚举</td><td>-</td></tr>
+                    <tr><td>转授权</td><td>枚举</td><td>-</td></tr>
+                    <tr><td>合作区域</td><td>枚举</td><td>-</td></tr>
+                    <tr><td>对方分成比例</td><td>百分比</td><td>如 50%</td></tr>
+                    <tr><td>元/千字</td><td>金额</td><td>-</td></tr>
+                    <tr><td>成本计算方式</td><td>枚举</td><td>如「单价*时长」</td></tr>
+                    <tr><td>单价</td><td>金额</td><td class="highlight"><strong>核心结算字段，醒目展示</strong></td></tr>
+                    <tr><td>合作周期</td><td>枚举</td><td>-</td></tr>
+                    <tr><td>分成模板</td><td>枚举</td><td>-</td></tr>
+                    <tr><td>cp接口id</td><td>文本</td><td>对接 CP 的接口标识</td></tr>
+                </table>
+                <p><strong>分组四：签署信息</strong></p>
+                <table>
+                    <tr><th>字段名</th><th>类型</th><th>说明</th></tr>
+                    <tr><td>签署类型</td><td>枚举</td><td>线上签 / 线下签 / 系统签</td></tr>
+                    <tr><td>是否单独申报印花税</td><td>是/否</td><td>-</td></tr>
+                    <tr><td>合同/结算单附件</td><td>文件链接</td><td>展示文件名，支持点击下载/预览</td></tr>
+                    <tr><td>签署完成合同附件</td><td>文件链接</td><td>展示文件名，支持点击下载/预览</td></tr>
+                </table>
+                <p><strong>3、特殊说明</strong></p>
+                <ul>
+                    <li>详情页所有字段均为只读，不支持编辑</li>
+                    <li>版权信息分组仅在「是否涉及版权信息 = 是」时展示，为「否」时该分组隐藏</li>
+                    <li>「单价」字段在详情页中需醒目展示（如加大字号或高亮背景），便于结算人员快速获取</li>
+                    <li>附件类字段需支持预览（图片/PDF）或下载</li>
+                </ul>
+            </td>
+            <td>
+                <div class="proto-placeholder">截图：合同详情页<br>（从 Demo 截取）</div>
+            </td>
+        </tr>
+
+        <!-- 3.4 数据同步机制 -->
+        <tr>
+            <td>
+                <h3>3.4 数据同步机制</h3>
+                <p><strong>1、概述</strong></p>
+                <ul>
+                    <li>定义从 OA 系统拉取已归档合同数据的同步策略</li>
+                </ul>
+                <p><strong>2、详细内容</strong></p>
+                <p>1）同步范围：OA 系统中状态为「已归档」的所有合同</p>
+                <p>2）同步方式：通过 OA 系统提供的 API 接口拉取数据</p>
+                <p>3）同步频率：</p>
+                <ul>
+                    <li><strong>定时同步</strong>：每天凌晨执行一次全量/增量同步（具体方案由研发确认 OA 接口能力后确定）</li>
+                    <li><strong>手动同步</strong>：列表页提供「同步数据」按钮，点击后触发即时同步</li>
+                </ul>
+                <p>4）同步标识：以<strong>合同编号</strong>为唯一 key，已存在的合同更新字段值，新合同新增记录</p>
+                <p>5）同步状态展示：列表页顶部展示「最近同步时间：YYYY-MM-DD HH:mm:ss」</p>
+                <p><strong>3、特殊说明</strong></p>
+                <ul>
+                    <li>OA 系统接口能力需研发侧与 OA 团队对接确认（是否支持增量、分页、字段过滤等）</li>
+                    <li>如 OA 接口不支持增量同步，可采用全量拉取 + 本地比对的方式</li>
+                    <li>同步失败时需记录日志，并在页面上提示「同步异常，请稍后重试」</li>
+                    <li>附件文件建议存储文件链接而非文件本体，点击时跳转 OA 系统查看/下载</li>
+                </ul>
+            </td>
+            <td>
+                <div class="proto-placeholder">无原型</div>
+            </td>
+        </tr>
+
+        <!-- 3.5 数据导出 -->
+        <tr>
+            <td>
+                <h3>3.5 数据导出（可选）</h3>
+                <p><strong>1、概述</strong></p>
+                <ul>
+                    <li>支持将合同列表数据导出为 Excel 文件</li>
+                </ul>
+                <p><strong>2、详细内容</strong></p>
+                <p>1）列表页提供「导出」按钮</p>
+                <p>2）导出内容为当前筛选条件下的合同列表（含列表页展示的所有字段）</p>
+                <p>3）导出格式：Excel（.xlsx）</p>
+                <p>4）文件名格式：<code>合同列表_YYYYMMDD.xlsx</code></p>
+                <p><strong>3、特殊说明</strong></p>
+                <ul>
+                    <li>导出数据量较大时需异步处理，导出完成后提示下载</li>
+                    <li>该功能优先级较低，可视排期情况决定是否纳入首期</li>
+                </ul>
+            </td>
+            <td>
+                <div class="proto-placeholder">无原型</div>
+            </td>
+        </tr>
+    </table>
+
+    <h2>4. 数据埋点</h2>
+    <table>
+        <tr><th>事件名</th><th>触发时机</th><th>关键参数</th></tr>
+        <tr>
+            <td>contract_list_view</td>
+            <td>进入合同列表页时</td>
+            <td>operator</td>
+        </tr>
+        <tr>
+            <td>contract_detail_view</td>
+            <td>查看合同详情时</td>
+            <td>contract_no, operator</td>
+        </tr>
+        <tr>
+            <td>contract_search</td>
+            <td>执行搜索时</td>
+            <td>keyword, filter_conditions</td>
+        </tr>
+        <tr>
+            <td>contract_sync_manual</td>
+            <td>点击手动同步按钮时</td>
+            <td>operator</td>
+        </tr>
+        <tr>
+            <td>contract_sync_result</td>
+            <td>同步完成时</td>
+            <td>sync_type(manual/scheduled), new_count, update_count, fail_count, duration_ms</td>
+        </tr>
+        <tr>
+            <td>contract_export</td>
+            <td>点击导出按钮时</td>
+            <td>filter_conditions, total_count, operator</td>
+        </tr>
+    </table>
+
+</div>
+
+<script>
+function copyContent() {
+    const copyArea = document.getElementById('copyArea');
+    const btn = document.getElementById('copyBtn');
+    try {
+        const htmlContent = copyArea.innerHTML;
+        const textContent = copyArea.innerText;
+        const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+        const textBlob = new Blob([textContent], { type: 'text/plain' });
+        const clipboardItem = new ClipboardItem({
+            'text/html': htmlBlob,
+            'text/plain': textBlob
+        });
+        navigator.clipboard.write([clipboardItem]).then(() => {
+            btn.textContent = '复制成功！';
+            btn.classList.add('copy-success');
+            setTimeout(() => {
+                btn.textContent = '一键复制（粘贴到TAPD）';
+                btn.classList.remove('copy-success');
+            }, 2000);
+        });
+    } catch (err) {
+        const range = document.createRange();
+        range.selectNodeContents(copyArea);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        document.execCommand('copy');
+        selection.removeAllRanges();
+        btn.textContent = '复制成功！';
+        btn.classList.add('copy-success');
+        setTimeout(() => {
+            btn.textContent = '一键复制（粘贴到TAPD）';
+            btn.classList.remove('copy-success');
+        }, 2000);
+    }
+}
+</script>
+
+</body>
+</html>
