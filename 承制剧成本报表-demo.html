@@ -395,7 +395,6 @@
           <tr>
             <th>时间</th>
             <th>操作人</th>
-            <th>操作类型</th>
             <th>原始值</th>
             <th>修改值</th>
           </tr>
@@ -427,36 +426,36 @@ let editingIdx = null;
 
 const mockLogs = {
   'DRM20261205': [
-    { time: '2026-08-20 14:23:11', operator: '系统', type: '系统拉取-时长更新', from: '185.00 min', to: '186.50 min' },
-    { time: '2026-08-16 09:05:33', operator: '系统', type: '系统拉取-单价更新', from: '3,000.00', to: '3,200.00' },
-    { time: '2026-08-15 10:00:01', operator: '系统', type: '系统拉取-初始同步', from: '-', to: '合同 HT-2026-0892 数据同步' },
+    { time: '2026-08-20 14:23:11', operator: '系统', from: '总时长: 185.00 min', to: '总时长: 186.50 min' },
+    { time: '2026-08-16 09:05:33', operator: '系统', from: '单价: 3,000.00', to: '单价: 3,200.00' },
+    { time: '2026-08-15 10:00:01', operator: '系统', from: '-', to: '合同 HT-2026-0892 数据初始同步' },
   ],
   'DRM20261180': [
-    { time: '2026-09-02 11:30:45', operator: '李明轩', type: '手动调整', from: '调整金额: 0.00', to: '调整金额: -5,000.00' },
-    { time: '2026-08-10 08:12:20', operator: '系统', type: '系统拉取-时长更新', from: '208.00 min', to: '210.35 min' },
-    { time: '2026-08-02 10:00:02', operator: '系统', type: '系统拉取-初始同步', from: '-', to: '合同 HT-2026-0845 数据同步' },
+    { time: '2026-09-02 11:30:45', operator: '李明轩', from: '调整金额: 0.00', to: '调整金额: -5,000.00' },
+    { time: '2026-08-10 08:12:20', operator: '系统', from: '总时长: 208.00 min', to: '总时长: 210.35 min' },
+    { time: '2026-08-02 10:00:02', operator: '系统', from: '-', to: '合同 HT-2026-0845 数据初始同步' },
   ],
   'DRM20261134': [
-    { time: '2026-09-10 16:45:22', operator: '王丽娜', type: '手动调整', from: '调整金额: 0.00', to: '调整金额: +12,000.00' },
-    { time: '2026-09-10 16:45:22', operator: '王丽娜', type: '手动调整', from: '单价: 2,200.00', to: '单价: 2,400.00' },
-    { time: '2026-07-25 09:30:00', operator: '系统', type: '系统拉取-时长更新', from: '160.50 min', to: '165.80 min' },
-    { time: '2026-07-20 10:00:03', operator: '系统', type: '系统拉取-初始同步', from: '-', to: '合同 HT-2026-0801 数据同步' },
+    { time: '2026-09-10 16:45:22', operator: '王丽娜', from: '调整金额: 0.00', to: '调整金额: +12,000.00' },
+    { time: '2026-09-10 16:45:22', operator: '王丽娜', from: '单价: 2,200.00', to: '单价: 2,400.00' },
+    { time: '2026-07-25 09:30:00', operator: '系统', from: '总时长: 160.50 min', to: '总时长: 165.80 min' },
+    { time: '2026-07-20 10:00:03', operator: '系统', from: '-', to: '合同 HT-2026-0801 数据初始同步' },
   ],
   'DRM20261098': [
-    { time: '2026-07-05 10:00:01', operator: '系统', type: '系统拉取-初始同步', from: '-', to: '合同 HT-2026-0776 数据同步' },
+    { time: '2026-07-05 10:00:01', operator: '系统', from: '-', to: '合同 HT-2026-0776 数据初始同步' },
   ],
   'DRM20261065': [
-    { time: '2026-08-28 10:15:33', operator: '李明轩', type: '手动调整', from: '调整金额: 0.00', to: '调整金额: +8,500.00' },
-    { time: '2026-07-02 14:20:10', operator: '系统', type: '系统拉取-单价更新', from: '2,400.00', to: '2,600.00' },
-    { time: '2026-06-18 10:00:02', operator: '系统', type: '系统拉取-初始同步', from: '-', to: '合同 HT-2026-0734 数据同步' },
+    { time: '2026-08-28 10:15:33', operator: '李明轩', from: '调整金额: 0.00', to: '调整金额: +8,500.00' },
+    { time: '2026-07-02 14:20:10', operator: '系统', from: '单价: 2,400.00', to: '单价: 2,600.00' },
+    { time: '2026-06-18 10:00:02', operator: '系统', from: '-', to: '合同 HT-2026-0734 数据初始同步' },
   ],
   'DRM20261021': [
-    { time: '2026-08-15 09:40:18', operator: '王丽娜', type: '手动调整', from: '调整金额: 0.00', to: '调整金额: -3,000.00' },
-    { time: '2026-06-01 10:00:01', operator: '系统', type: '系统拉取-初始同步', from: '-', to: '合同 HT-2026-0698 数据同步' },
+    { time: '2026-08-15 09:40:18', operator: '王丽娜', from: '调整金额: 0.00', to: '调整金额: -3,000.00' },
+    { time: '2026-06-01 10:00:01', operator: '系统', from: '-', to: '合同 HT-2026-0698 数据初始同步' },
   ],
   'DRM20260988': [
-    { time: '2026-06-01 08:00:05', operator: '系统', type: '系统拉取-时长更新', from: '175.20 min', to: '178.60 min' },
-    { time: '2026-05-12 10:00:04', operator: '系统', type: '系统拉取-初始同步', from: '-', to: '内容数据同步（无合同）' },
+    { time: '2026-06-01 08:00:05', operator: '系统', from: '总时长: 175.20 min', to: '总时长: 178.60 min' },
+    { time: '2026-05-12 10:00:04', operator: '系统', from: '-', to: '内容数据初始同步（无合同）' },
   ],
 };
 
@@ -533,12 +532,11 @@ function openLog(idx) {
   const logs = mockLogs[d.id] || [];
   const tbody = document.getElementById('logTableBody');
   if (logs.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:24px;">暂无操作记录</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:24px;">暂无操作记录</td></tr>';
   } else {
     tbody.innerHTML = logs.map(l => `<tr>
       <td>${l.time}</td>
       <td>${l.operator}</td>
-      <td>${l.type}</td>
       <td>${l.from}</td>
       <td>${l.to}</td>
     </tr>`).join('');
