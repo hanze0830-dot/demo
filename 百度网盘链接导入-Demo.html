@@ -82,7 +82,7 @@
         .form-error { font-size: 12px; color: #ff4d4d; margin-top: 4px; margin-left: 82px; }
         .form-tip { font-size: 11px; color: #bbb; margin-left: 82px; margin-top: 2px; }
 
-        /* file list */
+        /* file list (parse result) */
         .file-list-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 12px; }
         .file-list-stats { font-size: 13px; color: #666; }
         .file-list-stats strong { color: #333; }
@@ -103,29 +103,50 @@
         .row-disabled td { color: #ccc !important; background: #fafafa; }
         .row-disabled .file-type-tag { opacity: 0.4; }
 
-        /* task status */
-        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: 500; }
-        .status-waiting { background: #f0f0f0; color: #999; }
-        .status-processing { background: #e6f7ff; color: #1890ff; }
-        .status-done { background: #f0f9eb; color: #52c41a; }
-        .status-fail { background: #fff2f0; color: #ff4d4d; }
+        /* ========== Task status: card-row style matching existing upload list ========== */
+        .task-summary { font-size: 12px; color: #999; text-align: right; margin-bottom: 8px; }
+        .task-list { border-top: 1px solid #eee; }
 
-        .progress-bar { width: 100%; height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
-        .progress-fill.blue { background: linear-gradient(90deg, #1890ff, #69c0ff); }
+        .file-row { display: flex; align-items: center; padding: 12px 16px; background: #faf5ee; border-bottom: 1px solid #f0e8dd; gap: 12px; min-height: 64px; }
+        .file-row:last-child { border-bottom: none; }
+        .file-row-index { font-size: 13px; color: #999; min-width: 20px; text-align: center; flex-shrink: 0; }
+
+        .file-row-thumb { width: 44px; height: 44px; border-radius: 4px; flex-shrink: 0; overflow: hidden; background: #e0d8ce; display: flex; align-items: center; justify-content: center; }
+        .file-row-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .file-row-thumb .thumb-spinner { width: 22px; height: 22px; border: 2.5px solid #ccc; border-top-color: #999; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .file-row-thumb .thumb-done { font-size: 22px; line-height: 1; }
+        .file-row-thumb .thumb-fail { font-size: 20px; line-height: 1; color: #ff4d4d; }
+
+        .file-row-info { flex: 1; min-width: 0; }
+        .file-row-name { font-size: 13px; font-weight: 500; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-row-meta { font-size: 12px; color: #aaa; margin-top: 2px; display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+        .file-row-meta span { white-space: nowrap; }
+        .file-row-meta .sep { margin: 0 6px; color: #d0d0d0; }
+        .file-row-meta .meta-status { color: #52c41a; }
+        .file-row-meta .meta-fail { color: #ff4d4d; }
+        .file-row-meta .meta-processing { color: #1890ff; }
+
+        .file-row-progress { flex: 1; max-width: 50%; min-width: 120px; display: flex; align-items: center; gap: 8px; }
+        .progress-bar { flex: 1; height: 4px; background: #e8e0d6; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
+        .progress-fill.pink { background: linear-gradient(90deg, #ff4d6a, #ff7a8a); }
         .progress-fill.green { background: #52c41a; }
-        .progress-fill.red { background: #ff4d4d; }
-        .progress-text { font-size: 11px; color: #999; margin-top: 2px; }
+        .progress-pct { font-size: 12px; color: #999; min-width: 32px; text-align: right; flex-shrink: 0; }
 
-        .retry-link { font-size: 12px; color: #ff4d6a; cursor: pointer; text-decoration: none; }
+        .file-row-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin-left: auto; }
+        .file-row-actions .action-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; border: none; background: none; color: #999; font-size: 14px; }
+        .file-row-actions .action-icon:hover { background: #f0e8dd; color: #666; }
+        .file-row-actions .action-icon.danger { color: #ff4d4d; }
+        .file-row-actions .action-icon.danger:hover { background: #fff0f0; }
+        .action-text { font-size: 12px; color: #999; cursor: pointer; white-space: nowrap; }
+        .retry-link { font-size: 12px; color: #ff4d6a; cursor: pointer; text-decoration: none; border: none; background: none; padding: 0; }
         .retry-link:hover { text-decoration: underline; }
 
         /* result banner */
-        .result-banner { padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+        .result-banner { padding: 10px 16px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
         .result-success { background: #f0f9eb; border: 1px solid #b7eb8f; color: #389e0d; }
         .result-warning { background: #fffbe6; border: 1px solid #ffe58f; color: #d48806; }
         .result-error { background: #fff2f0; border: 1px solid #ffccc7; color: #cf1322; }
-
         .btn-retry-all { background: #fff; color: #ff4d6a; border: 1px solid #ff4d6a; height: 28px; padding: 0 12px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: auto; }
         .btn-retry-all:hover { background: #fff5f5; }
         .btn-reset { background: #fff; color: #666; border: 1px solid #ddd; height: 28px; padding: 0 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
@@ -150,9 +171,6 @@
         .v-btn-default:hover { background: #eee; }
 
         .hidden { display: none !important; }
-
-        /* summary bar */
-        .summary-bar { font-size: 12px; color: #999; text-align: right; margin-top: 12px; }
     </style>
 </head>
 <body>
@@ -239,21 +257,10 @@
                             </table>
                         </div>
 
-                        <!-- Task status -->
+                        <!-- Task status (card-row style) -->
                         <div id="s1-taskstatus" class="hidden">
                             <div id="s1-result-banner"></div>
-                            <table class="file-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:30px">#</th>
-                                        <th>文件名</th>
-                                        <th style="width:80px">状态</th>
-                                        <th style="width:160px">进度</th>
-                                        <th style="width:50px">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="s1-task-tbody"></tbody>
-                            </table>
+                            <div id="s1-task-list" class="task-list"></div>
                             <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;">
                                 <button class="btn-reset hidden" id="s1-resetBtn" onclick="resetNetdisk('s1')">重新导入</button>
                             </div>
@@ -346,59 +353,27 @@
 
                 <div id="s2-taskstatus" class="hidden">
                     <div id="s2-result-banner"></div>
-                    <table class="file-table">
-                        <thead>
-                            <tr>
-                                <th style="width:30px">#</th>
-                                <th>文件名</th>
-                                <th style="width:80px">状态</th>
-                                <th style="width:200px">进度</th>
-                                <th style="width:50px">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="s2-task-tbody"></tbody>
-                    </table>
+                    <div class="task-summary" id="s2-summary"></div>
+                    <div id="s2-task-list" class="task-list"></div>
                     <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;">
                         <button class="btn-reset hidden" id="s2-resetBtn" onclick="resetNetdisk('s2')">重新导入</button>
                     </div>
-                    <div class="summary-bar" id="s2-summary"></div>
                 </div>
             </div>
         </div>
 
         <!-- Other tabs (placeholder) -->
         <div class="upload-content hidden" id="s2-tab-nosub">
-            <div class="mode-switch">
-                <button class="mode-btn active">本地上传</button>
-                <button class="mode-btn">网盘链接导入</button>
-            </div>
-            <div class="upload-zone">
-                <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>
-                <div class="upload-text">将文件拖到此处，或<a>点击上传</a></div>
-                <div class="upload-hint">推荐扩展名：.mp4</div>
-            </div>
+            <div class="mode-switch"><button class="mode-btn active">本地上传</button><button class="mode-btn">网盘链接导入</button></div>
+            <div class="upload-zone"><div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div><div class="upload-text">将文件拖到此处，或<a>点击上传</a></div><div class="upload-hint">推荐扩展名：.mp4</div></div>
         </div>
         <div class="upload-content hidden" id="s2-tab-sub">
-            <div class="mode-switch">
-                <button class="mode-btn active">本地上传</button>
-                <button class="mode-btn">网盘链接导入</button>
-            </div>
-            <div class="upload-zone">
-                <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>
-                <div class="upload-text">将文件拖到此处，或<a>点击上传</a></div>
-                <div class="upload-hint">推荐扩展名：.srt / .ass</div>
-            </div>
+            <div class="mode-switch"><button class="mode-btn active">本地上传</button><button class="mode-btn">网盘链接导入</button></div>
+            <div class="upload-zone"><div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div><div class="upload-text">将文件拖到此处，或<a>点击上传</a></div><div class="upload-hint">推荐扩展名：.srt / .ass</div></div>
         </div>
         <div class="upload-content hidden" id="s2-tab-audio">
-            <div class="mode-switch">
-                <button class="mode-btn active">本地上传</button>
-                <button class="mode-btn">网盘链接导入</button>
-            </div>
-            <div class="upload-zone">
-                <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>
-                <div class="upload-text">将文件拖到此处，或<a>点击上传</a></div>
-                <div class="upload-hint">推荐扩展名：.mp3 / .aac / .m4a</div>
-            </div>
+            <div class="mode-switch"><button class="mode-btn active">本地上传</button><button class="mode-btn">网盘链接导入</button></div>
+            <div class="upload-zone"><div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div><div class="upload-text">将文件拖到此处，或<a>点击上传</a></div><div class="upload-hint">推荐扩展名：.mp3 / .aac / .m4a</div></div>
         </div>
     </div>
 </div>
@@ -441,7 +416,7 @@ function switchUploadTab(tab, contentId) {
     document.getElementById(contentId).classList.remove('hidden');
 }
 
-/* ---- Smart paste (auto-fill extract code) ---- */
+/* ---- Smart paste ---- */
 document.addEventListener('paste', function(e) {
     const target = e.target;
     if (!target.classList.contains('form-input')) return;
@@ -503,29 +478,34 @@ function toggleAll(prefix) {
 /* ---- Task simulation data ---- */
 const taskData = {
     s1: [
-        { name: '第3集-小飞侠预告.mp4', finalStatus: 'done' }
+        { name: '第3集-小飞侠预告.mp4', size: '256.32MB', finalStatus: 'done' }
     ],
     s2: [
-        { name: '第1集-小飞侠预告.mp4', finalStatus: 'done' },
-        { name: '第2集-小飞侠预告.mp4', finalStatus: 'done' },
-        { name: '第3集-小飞侠预告.mp4', finalStatus: 'fail', error: '下载超时，请重试' },
-        { name: '第4集-小飞侠预告.mp4', finalStatus: 'done' },
+        { name: '第1集-小飞侠预告.mp4', size: '312.45MB', finalStatus: 'done' },
+        { name: '第2集-小飞侠预告.mp4', size: '298.10MB', finalStatus: 'done' },
+        { name: '第3集-小飞侠预告.mp4', size: '256.32MB', finalStatus: 'fail', error: '下载超时，请重试' },
+        { name: '第4集-小飞侠预告.mp4', size: '305.78MB', finalStatus: 'done' },
     ]
 };
 
-const statusFlow = ['waiting', 'transferring', 'downloading', 'uploading', 'done'];
-const statusLabels = {
-    waiting: ['等待中', 'status-waiting'],
-    transferring: ['转存中', 'status-processing'],
-    downloading: ['下载中', 'status-processing'],
-    uploading: ['上传中', 'status-processing'],
-    done: ['已完成', 'status-done'],
-    fail: ['失败', 'status-fail'],
+const statusTextMap = {
+    waiting:      { text: '等待中',  cls: '' },
+    transferring: { text: '转存中',  cls: 'meta-processing' },
+    downloading:  { text: '下载中',  cls: 'meta-processing' },
+    uploading:    { text: '上传中',  cls: 'meta-processing' },
+    done:         { text: '导入成功', cls: 'meta-status' },
+    fail:         { text: '导入失败', cls: 'meta-fail' },
 };
 
 let taskTimers = {};
 let taskStates = {};
 let s2HasActiveTask = false;
+
+function fmtTime() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0')
+        + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
+}
 
 function startImport(prefix) {
     const data = taskData[prefix];
@@ -536,9 +516,9 @@ function startImport(prefix) {
     taskStates[prefix] = data.map((f, i) => ({
         ...f,
         index: i,
-        currentStep: 0,
         progress: 0,
-        status: 'waiting'
+        status: 'waiting',
+        finishTime: ''
     }));
 
     if (prefix === 's2') {
@@ -546,31 +526,79 @@ function startImport(prefix) {
         document.getElementById('s2-task-hint').classList.remove('hidden');
     }
 
-    renderTaskTable(prefix);
+    renderTaskList(prefix);
     simulateTasks(prefix);
 }
 
-function renderTaskTable(prefix) {
-    const tbody = document.getElementById(prefix + '-task-tbody');
+function renderTaskList(prefix) {
+    const container = document.getElementById(prefix + '-task-list');
     const states = taskStates[prefix];
     let html = '';
+
     states.forEach((f, i) => {
-        const [label, cls] = statusLabels[f.status] || statusLabels.waiting;
-        let progressHtml = '';
-        let actionHtml = '';
-        if (f.status === 'done') {
-            progressHtml = '<div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div><div class="progress-text">100%</div>';
-        } else if (f.status === 'fail') {
-            progressHtml = '<div style="font-size:12px;color:#ff4d4d;">' + (f.error || '未知错误') + '</div>';
-            actionHtml = '<a class="retry-link" onclick="retryFile(\'' + prefix + '\',' + i + ')">重试</a>';
-        } else if (f.status === 'waiting') {
-            progressHtml = '<div class="progress-bar"><div class="progress-fill blue" style="width:0%"></div></div><div class="progress-text">排队中</div>';
+        const st = statusTextMap[f.status] || statusTextMap.waiting;
+        const isActive = ['transferring','downloading','uploading'].includes(f.status);
+        const isDone = f.status === 'done';
+        const isFail = f.status === 'fail';
+        const isWait = f.status === 'waiting';
+
+        // Thumbnail
+        let thumbInner = '';
+        if (isDone) {
+            thumbInner = '<span class="thumb-done">&#9654;</span>';
+        } else if (isFail) {
+            thumbInner = '<span class="thumb-fail">&#10007;</span>';
         } else {
-            progressHtml = '<div class="progress-bar"><div class="progress-fill blue" style="width:' + f.progress + '%"></div></div><div class="progress-text">' + f.progress + '%</div>';
+            thumbInner = '<div class="thumb-spinner"></div>';
         }
-        html += '<tr><td>' + (i+1) + '</td><td>' + f.name + '</td><td><span class="status-badge ' + cls + '">' + label + '</span></td><td>' + progressHtml + '</td><td>' + actionHtml + '</td></tr>';
+
+        // Meta line
+        let metaHtml = '<span class="' + st.cls + '">' + st.text + '</span>';
+        if (isDone) {
+            metaHtml += '<span class="sep">|</span><span>' + f.size + '</span>'
+                + '<span class="sep">|</span><span>更新时间: ' + f.finishTime + '</span>';
+        } else if (isFail) {
+            metaHtml += '<span class="sep">|</span><span style="color:#ff4d4d">' + (f.error || '未知错误') + '</span>';
+        } else if (isActive) {
+            metaHtml += '<span class="sep">|</span><span>' + f.size + '</span>';
+        }
+
+        // Progress bar (only for active/waiting states)
+        let progressHtml = '';
+        if (isActive || isWait) {
+            progressHtml = '<div class="file-row-progress">'
+                + '<div class="progress-bar"><div class="progress-fill pink" style="width:' + f.progress + '%"></div></div>'
+                + '<span class="progress-pct">' + f.progress + '%</span>'
+                + '</div>';
+        }
+
+        // Actions
+        let actionsHtml = '';
+        if (isDone) {
+            actionsHtml = '<div class="file-row-actions">'
+                + '<span class="action-text">排序</span>'
+                + '<button class="action-icon" title="下载">&#9729;</button>'
+                + '<button class="action-icon danger" title="删除">&#128465;</button>'
+                + '</div>';
+        } else if (isFail) {
+            actionsHtml = '<div class="file-row-actions">'
+                + '<button class="retry-link" onclick="retryFile(\'' + prefix + '\',' + i + ')">重试</button>'
+                + '</div>';
+        }
+
+        html += '<div class="file-row">'
+            + '<span class="file-row-index">' + (i + 1) + '</span>'
+            + '<div class="file-row-thumb">' + thumbInner + '</div>'
+            + '<div class="file-row-info">'
+                + '<div class="file-row-name">' + f.name + '</div>'
+                + '<div class="file-row-meta">' + metaHtml + '</div>'
+            + '</div>'
+            + progressHtml
+            + actionsHtml
+            + '</div>';
     });
-    tbody.innerHTML = html;
+
+    container.innerHTML = html;
 
     // Update summary for s2
     if (prefix === 's2') {
@@ -579,11 +607,8 @@ function renderTaskTable(prefix) {
         const processing = states.filter(s => ['transferring','downloading','uploading'].includes(s.status)).length;
         const waiting = states.filter(s => s.status === 'waiting').length;
         const total = states.length;
-        if (done + fail === total) {
-            document.getElementById('s2-summary').textContent = '导入完成，' + done + ' 成功，' + fail + ' 失败';
-        } else {
-            document.getElementById('s2-summary').textContent = '共 ' + total + ' 个文件，' + done + ' 已完成，' + fail + ' 失败，' + processing + ' 进行中，' + waiting + ' 等待中';
-        }
+        const el = document.getElementById('s2-summary');
+        el.textContent = '共' + total + '个文件，' + done + ' 成功，' + fail + ' 失败，' + processing + ' 上传中，' + waiting + ' 等待';
     }
 }
 
@@ -593,13 +618,10 @@ function simulateTasks(prefix) {
     taskTimers[prefix] = setInterval(() => {
         tick++;
         const states = taskStates[prefix];
-        let allDone = true;
 
         states.forEach((f, i) => {
             if (f.status === 'done' || f.status === 'fail') return;
-            allDone = false;
 
-            // Stagger start: each file starts 2 ticks after previous
             const startTick = i * 2;
             if (tick < startTick) return;
 
@@ -622,10 +644,11 @@ function simulateTasks(prefix) {
             } else {
                 f.status = 'done';
                 f.progress = 100;
+                f.finishTime = fmtTime();
             }
         });
 
-        renderTaskTable(prefix);
+        renderTaskList(prefix);
 
         if (states.every(f => f.status === 'done' || f.status === 'fail')) {
             clearInterval(taskTimers[prefix]);
@@ -651,42 +674,43 @@ function showResult(prefix) {
     } else if (done > 0) {
         banner.innerHTML = '<div class="result-banner result-warning">&#9888; 导入完成，' + done + ' 个成功，' + fail + ' 个失败<button class="btn-retry-all" onclick="retryAllFailed(\'' + prefix + '\')">重试失败项</button></div>';
     } else {
-        banner.innerHTML = '<div class="result-banner result-error">&#10007; 导入失败，请检查链接是否有效或联系技术支持<button class="btn-retry-all" onclick="retryAllFailed(\'' + prefix + '\')">全部重试</button></div>';
+        banner.innerHTML = '<div class="result-banner result-error">&#10007; 导入失败，请检查链接是否有效<button class="btn-retry-all" onclick="retryAllFailed(\'' + prefix + '\')">全部重试</button></div>';
     }
     resetBtn.classList.remove('hidden');
+
+    // Update summary final
+    if (prefix === 's2') {
+        document.getElementById('s2-summary').textContent = '共' + total + '个文件，' + done + ' 成功，' + fail + ' 失败，0 上传中，0 等待';
+    }
 }
 
 function retryFile(prefix, idx) {
     const states = taskStates[prefix];
     states[idx].status = 'waiting';
     states[idx].progress = 0;
-    states[idx].finalStatus = 'done'; // retry succeeds
-    renderTaskTable(prefix);
+    states[idx].finalStatus = 'done';
     if (prefix === 's2') {
         s2HasActiveTask = true;
         document.getElementById('s2-task-hint').classList.remove('hidden');
     }
     document.getElementById(prefix + '-result-banner').innerHTML = '';
     document.getElementById(prefix + '-resetBtn').classList.add('hidden');
+    renderTaskList(prefix);
     simulateTasks(prefix);
 }
 
 function retryAllFailed(prefix) {
     const states = taskStates[prefix];
     states.forEach(f => {
-        if (f.status === 'fail') {
-            f.status = 'waiting';
-            f.progress = 0;
-            f.finalStatus = 'done';
-        }
+        if (f.status === 'fail') { f.status = 'waiting'; f.progress = 0; f.finalStatus = 'done'; }
     });
-    renderTaskTable(prefix);
     if (prefix === 's2') {
         s2HasActiveTask = true;
         document.getElementById('s2-task-hint').classList.remove('hidden');
     }
     document.getElementById(prefix + '-result-banner').innerHTML = '';
     document.getElementById(prefix + '-resetBtn').classList.add('hidden');
+    renderTaskList(prefix);
     simulateTasks(prefix);
 }
 
@@ -724,7 +748,6 @@ function showValidationModal(type) {
         desc.textContent = '当前有文件导入失败，是否仍要提交？';
         actions.innerHTML = '<button class="v-btn v-btn-default" onclick="closeValidation()">返回处理</button><button class="v-btn v-btn-primary" onclick="closeValidation();alert(\'提交成功\')">继续提交</button>';
     } else if (type === 'close') {
-        // Check if s1 has active task
         const s1States = taskStates['s1'];
         if (s1States && s1States.some(f => !['done','fail'].includes(f.status))) {
             icon.textContent = '⚠️';
@@ -732,10 +755,9 @@ function showValidationModal(type) {
             desc.textContent = '关闭弹窗不会取消正在进行的导入任务，是否关闭？';
             actions.innerHTML = '<button class="v-btn v-btn-default" onclick="closeValidation()">取消</button><button class="v-btn v-btn-primary" onclick="closeValidation()">确认关闭</button>';
         } else {
-            return; // no active task, just close
+            return;
         }
     }
-
     modal.classList.remove('hidden');
 }
 
@@ -744,28 +766,13 @@ function closeValidation() {
 }
 
 function confirmSubmit() {
-    // Check task states
     const states = taskStates['s2'];
-    if (!states) {
-        alert('提交成功');
-        return;
-    }
-
-    if (s2HasActiveTask) {
-        showValidationModal('inprogress');
-        return;
-    }
-
-    const hasFail = states.some(f => f.status === 'fail');
-    if (hasFail) {
-        showValidationModal('hasfail');
-        return;
-    }
-
+    if (!states) { alert('提交成功'); return; }
+    if (s2HasActiveTask) { showValidationModal('inprogress'); return; }
+    if (states.some(f => f.status === 'fail')) { showValidationModal('hasfail'); return; }
     alert('提交成功');
 }
 
-/* Click outside validation modal to close */
 document.getElementById('validationModal').addEventListener('click', function(e) {
     if (e.target === this) closeValidation();
 });
