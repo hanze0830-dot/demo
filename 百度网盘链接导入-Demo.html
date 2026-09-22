@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百度网盘分享链接导入 — 交互 Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f0f2f5; color: #333; font-size: 14px; }
+
+        /* top bar */
+        .topbar { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 0 24px; height: 48px; display: flex; align-items: center; gap: 16px; }
+        .topbar-logo { font-size: 15px; font-weight: 700; color: #ff4d6a; }
+        .topbar-crumb { font-size: 13px; color: #999; }
+        .topbar-crumb.active { color: #333; font-weight: 500; }
+
+        /* demo switcher */
+        .demo-switcher { max-width: 1200px; margin: 20px auto 0; padding: 0 24px; display: flex; gap: 12px; }
+        .demo-tab { padding: 8px 20px; border-radius: 6px 6px 0 0; font-size: 13px; font-weight: 500; cursor: pointer; background: #e8e8e8; color: #666; border: 1px solid #ddd; border-bottom: none; }
+        .demo-tab.active { background: #fff; color: #333; font-weight: 600; }
+
+        .demo-container { max-width: 1200px; margin: 0 auto; padding: 0 24px 40px; }
+        .demo-panel { background: #fff; border: 1px solid #ddd; border-radius: 0 8px 8px 8px; padding: 0; display: none; }
+        .demo-panel.active { display: block; }
+
+        /* ========== Scene 1: 更新文件弹窗 ========== */
+        .scene1-bg { padding: 40px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 500px; }
+        .modal-overlay { background: rgba(0,0,0,0.08); border-radius: 8px; padding: 40px; width: 100%; display: flex; justify-content: center; }
+        .modal { background: #fff; border-radius: 8px; width: 580px; box-shadow: 0 4px 24px rgba(0,0,0,0.12); overflow: hidden; }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 16px; font-weight: 600; }
+        .modal-close { width: 28px; height: 28px; border: none; background: none; font-size: 18px; color: #999; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { background: #f5f5f5; }
+        .modal-body { padding: 20px; }
+
+        /* ========== Scene 2: 修改页面 ========== */
+        .scene2-wrap { padding: 0; }
+        .page-header { padding: 16px 24px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .page-header-left { display: flex; align-items: center; gap: 12px; }
+        .back-link { font-size: 13px; color: #666; cursor: pointer; text-decoration: none; }
+        .back-link:hover { color: #333; }
+        .page-title { font-size: 16px; font-weight: 600; }
+        .btn-confirm { background: #ff4d6a; color: #fff; border: none; height: 36px; padding: 0 24px; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; }
+        .btn-confirm:hover { background: #e8415c; }
+
+        .upload-tabs { display: flex; gap: 0; padding: 0 24px; border-bottom: 1px solid #eee; }
+        .upload-tab { padding: 12px 20px; font-size: 14px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; font-weight: 500; }
+        .upload-tab.active { color: #ff4d6a; border-bottom-color: #ff4d6a; font-weight: 600; }
+        .upload-content { padding: 24px; }
+
+        /* ========== Shared: mode switch + upload area ========== */
+        .mode-switch { display: inline-flex; background: #f0f0f0; border-radius: 6px; padding: 3px; margin-bottom: 20px; }
+        .mode-btn { padding: 6px 18px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; color: #666; background: none; border: none; transition: all 0.2s; }
+        .mode-btn.active { background: #fff; color: #333; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+        .field-label { font-size: 13px; color: #666; margin-bottom: 4px; font-weight: 500; }
+
+        /* upload zone (existing style) */
+        .upload-zone { border: 2px dashed #e0a0b0; border-radius: 8px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fff; }
+        .upload-zone:hover { border-color: #ff4d6a; background: #fff8f9; }
+        .upload-icon { width: 48px; height: 48px; margin: 0 auto 12px; background: #e8e8e8; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .upload-icon svg { width: 24px; height: 24px; fill: #999; }
+        .upload-text { font-size: 14px; color: #999; }
+        .upload-text a { color: #ff4d6a; text-decoration: none; cursor: pointer; }
+        .upload-hint { font-size: 12px; color: #bbb; margin-top: 8px; }
+
+        /* netdisk form */
+        .netdisk-form { background: #fafbfc; border: 1px solid #e8e8e8; border-radius: 8px; padding: 24px; }
+        .form-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .form-row:last-child { margin-bottom: 0; }
+        .form-label { font-size: 13px; color: #555; font-weight: 500; min-width: 70px; text-align: right; flex-shrink: 0; }
+        .form-input { height: 36px; border: 1px solid #d0d0d0; border-radius: 4px; padding: 0 12px; font-size: 13px; color: #333; outline: none; flex: 1; }
+        .form-input:focus { border-color: #ff4d6a; box-shadow: 0 0 0 2px rgba(255,77,106,0.1); }
+        .form-input.short { width: 120px; flex: none; }
+        .form-input.error { border-color: #ff4d4d; }
+        .btn-parse { background: #ff4d6a; color: #fff; border: none; height: 36px; padding: 0 20px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+        .btn-parse:hover { background: #e8415c; }
+        .btn-parse:disabled { background: #ffa0b0; cursor: not-allowed; }
+        .btn-parse.loading { position: relative; color: transparent; }
+        .btn-parse.loading::after { content: ""; position: absolute; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; top: 50%; left: 50%; margin: -8px 0 0 -8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .form-error { font-size: 12px; color: #ff4d4d; margin-top: 4px; margin-left: 82px; }
+        .form-tip { font-size: 11px; color: #bbb; margin-left: 82px; margin-top: 2px; }
+
+        /* file list */
+        .file-list-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 12px; }
+        .file-list-stats { font-size: 13px; color: #666; }
+        .file-list-stats strong { color: #333; }
+        .btn-import { background: #ff4d6a; color: #fff; border: none; height: 32px; padding: 0 16px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; }
+        .btn-import:hover { background: #e8415c; }
+        .btn-import:disabled { background: #ffa0b0; cursor: not-allowed; }
+
+        .file-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .file-table th { background: #f8f9fa; border: 1px solid #e8e8e8; padding: 8px 12px; font-weight: 600; color: #666; text-align: left; font-size: 12px; }
+        .file-table td { border: 1px solid #e8e8e8; padding: 8px 12px; color: #555; }
+        .file-table tr:hover td { background: #fafafa; }
+        .file-table input[type="checkbox"] { accent-color: #ff4d6a; }
+        .file-type-tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 11px; font-weight: 500; }
+        .tag-video { background: #e8f4fd; color: #1890ff; }
+        .tag-subtitle { background: #fff7e6; color: #fa8c16; }
+        .tag-audio { background: #f0f5ff; color: #597ef7; }
+        .file-size { color: #999; }
+        .row-disabled td { color: #ccc !important; background: #fafafa; }
+        .row-disabled .file-type-tag { opacity: 0.4; }
+
+        /* task status */
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: 500; }
+        .status-waiting { background: #f0f0f0; color: #999; }
+        .status-processing { background: #e6f7ff; color: #1890ff; }
+        .status-done { background: #f0f9eb; color: #52c41a; }
+        .status-fail { background: #fff2f0; color: #ff4d4d; }
+
+        .progress-bar { width: 100%; height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+        .progress-fill.blue { background: linear-gradient(90deg, #1890ff, #69c0ff); }
+        .progress-fill.green { background: #52c41a; }
+        .progress-fill.red { background: #ff4d4d; }
+        .progress-text { font-size: 11px; color: #999; margin-top: 2px; }
+
+        .retry-link { font-size: 12px; color: #ff4d6a; cursor: pointer; text-decoration: none; }
+        .retry-link:hover { text-decoration: underline; }
+
+        /* result banner */
+        .result-banner { padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+        .result-success { background: #f0f9eb; border: 1px solid #b7eb8f; color: #389e0d; }
+        .result-warning { background: #fffbe6; border: 1px solid #ffe58f; color: #d48806; }
+        .result-error { background: #fff2f0; border: 1px solid #ffccc7; color: #cf1322; }
+
+        .btn-retry-all { background: #fff; color: #ff4d6a; border: 1px solid #ff4d6a; height: 28px; padding: 0 12px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: auto; }
+        .btn-retry-all:hover { background: #fff5f5; }
+        .btn-reset { background: #fff; color: #666; border: 1px solid #ddd; height: 28px; padding: 0 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+        .btn-reset:hover { background: #f5f5f5; }
+
+        /* confirm validation */
+        .task-hint { font-size: 12px; color: #ff4d6a; margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+        .task-hint .dot { width: 6px; height: 6px; background: #ff4d6a; border-radius: 50%; animation: blink 1s infinite; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* validation modal */
+        .v-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .v-modal { background: #fff; border-radius: 10px; width: 420px; padding: 28px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+        .v-modal-icon { font-size: 40px; text-align: center; margin-bottom: 12px; }
+        .v-modal-title { font-size: 16px; font-weight: 600; text-align: center; margin-bottom: 8px; }
+        .v-modal-desc { font-size: 13px; color: #666; text-align: center; margin-bottom: 24px; line-height: 1.6; }
+        .v-modal-actions { display: flex; justify-content: center; gap: 12px; }
+        .v-btn { height: 36px; padding: 0 24px; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; }
+        .v-btn-primary { background: #ff4d6a; color: #fff; }
+        .v-btn-primary:hover { background: #e8415c; }
+        .v-btn-default { background: #f5f5f5; color: #333; border: 1px solid #ddd; }
+        .v-btn-default:hover { background: #eee; }
+
+        .hidden { display: none !important; }
+
+        /* summary bar */
+        .summary-bar { font-size: 12px; color: #999; text-align: right; margin-top: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <span class="topbar-logo">DramaBox 内容中台</span>
+    <span class="topbar-crumb">剧目管理</span>
+    <span class="topbar-crumb">›</span>
+    <span class="topbar-crumb active">百度网盘链接导入 Demo</span>
+</div>
+
+<!-- Demo scene switcher -->
+<div class="demo-switcher">
+    <div class="demo-tab active" onclick="switchDemo('scene1')">场景一：更新文件弹窗</div>
+    <div class="demo-tab" onclick="switchDemo('scene2')">场景二：修改页面</div>
+</div>
+
+<div class="demo-container">
+
+<!-- ================================================================ -->
+<!-- SCENE 1: 更新文件弹窗 -->
+<!-- ================================================================ -->
+<div class="demo-panel active" id="demo-scene1">
+    <div class="scene1-bg">
+        <div class="modal-overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <span class="modal-title">更新文件</span>
+                    <button class="modal-close" onclick="showValidationModal('close')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="field-label">文件</div>
+
+                    <!-- Mode Switch -->
+                    <div class="mode-switch">
+                        <button class="mode-btn active" onclick="switchMode(this, 's1-local', 's1-netdisk')">本地上传</button>
+                        <button class="mode-btn" onclick="switchMode(this, 's1-netdisk', 's1-local')">网盘链接导入</button>
+                    </div>
+
+                    <!-- Local Upload (default) -->
+                    <div id="s1-local">
+                        <div class="upload-zone">
+                            <div class="upload-icon">
+                                <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                            </div>
+                            <div class="upload-text">将文件拖到此处，或<a>点击上传</a></div>
+                            <div class="upload-hint">推荐扩展名：.mp4</div>
+                        </div>
+                    </div>
+
+                    <!-- Netdisk Import -->
+                    <div id="s1-netdisk" class="hidden">
+                        <div class="netdisk-form">
+                            <div class="form-row">
+                                <span class="form-label">分享链接</span>
+                                <input class="form-input" id="s1-link" placeholder="粘贴百度网盘分享链接" value="">
+                            </div>
+                            <div class="form-row">
+                                <span class="form-label">提取码</span>
+                                <input class="form-input short" id="s1-code" placeholder="4位提取码" maxlength="4" value="">
+                                <button class="btn-parse" id="s1-parseBtn" onclick="parseLink('s1')">解析链接</button>
+                            </div>
+                            <div class="form-tip">支持粘贴包含链接和提取码的完整文本，自动识别拆分</div>
+                        </div>
+
+                        <!-- Parse result: file list -->
+                        <div id="s1-filelist" class="hidden">
+                            <div class="file-list-header">
+                                <span class="file-list-stats" id="s1-stats">共 <strong>1</strong> 个文件，已选 <strong>1</strong> 个</span>
+                                <button class="btn-import" id="s1-importBtn" onclick="startImport('s1')">开始导入</button>
+                            </div>
+                            <table class="file-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:40px"><input type="checkbox" checked id="s1-checkall" onchange="toggleAll('s1')"></th>
+                                        <th>文件名</th>
+                                        <th style="width:80px">大小</th>
+                                        <th style="width:70px">类型</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="s1-tbody">
+                                    <tr><td><input type="checkbox" checked class="s1-check"></td><td>第3集-小飞侠预告.mp4</td><td class="file-size">256 MB</td><td><span class="file-type-tag tag-video">视频</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Task status -->
+                        <div id="s1-taskstatus" class="hidden">
+                            <div id="s1-result-banner"></div>
+                            <table class="file-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:30px">#</th>
+                                        <th>文件名</th>
+                                        <th style="width:80px">状态</th>
+                                        <th style="width:160px">进度</th>
+                                        <th style="width:50px">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="s1-task-tbody"></tbody>
+                            </table>
+                            <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;">
+                                <button class="btn-reset hidden" id="s1-resetBtn" onclick="resetNetdisk('s1')">重新导入</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- SCENE 2: 修改页面 -->
+<!-- ================================================================ -->
+<div class="demo-panel" id="demo-scene2">
+    <div class="scene2-wrap">
+        <div class="page-header">
+            <div class="page-header-left">
+                <a class="back-link">← 返回</a>
+                <span style="color:#ddd">|</span>
+                <span class="page-title">修改</span>
+            </div>
+            <div style="display:flex; align-items:flex-end; flex-direction:column; gap:4px;">
+                <div class="task-hint hidden" id="s2-task-hint"><span class="dot"></span> 有导入任务进行中…</div>
+                <button class="btn-confirm" onclick="confirmSubmit()">确认</button>
+            </div>
+        </div>
+
+        <div class="upload-tabs">
+            <div class="upload-tab active" onclick="switchUploadTab(this, 's2-tab-video')">成片上传</div>
+            <div class="upload-tab" onclick="switchUploadTab(this, 's2-tab-nosub')">无字幕上传</div>
+            <div class="upload-tab" onclick="switchUploadTab(this, 's2-tab-sub')">字幕上传</div>
+            <div class="upload-tab" onclick="switchUploadTab(this, 's2-tab-audio')">音频上传</div>
+        </div>
+
+        <!-- Tab: 成片上传 -->
+        <div class="upload-content" id="s2-tab-video">
+            <div class="mode-switch">
+                <button class="mode-btn active" onclick="switchMode(this, 's2-local', 's2-netdisk')">本地上传</button>
+                <button class="mode-btn" onclick="switchMode(this, 's2-netdisk', 's2-local')">网盘链接导入</button>
+            </div>
+
+            <div id="s2-local">
+                <div class="upload-zone">
+                    <div class="upload-icon">
+                        <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                    </div>
+                    <div class="upload-text">将文件拖到此处，或<a>点击上传</a></div>
+                    <div class="upload-hint">推荐扩展名：.mp4</div>
+                </div>
+            </div>
+
+            <div id="s2-netdisk" class="hidden">
+                <div class="netdisk-form">
+                    <div class="form-row">
+                        <span class="form-label">分享链接</span>
+                        <input class="form-input" id="s2-link" placeholder="粘贴百度网盘分享链接" value="">
+                    </div>
+                    <div class="form-row">
+                        <span class="form-label">提取码</span>
+                        <input class="form-input short" id="s2-code" placeholder="4位提取码" maxlength="4" value="">
+                        <button class="btn-parse" id="s2-parseBtn" onclick="parseLink('s2')">解析链接</button>
+                    </div>
+                    <div class="form-tip">支持粘贴包含链接和提取码的完整文本，自动识别拆分</div>
+                </div>
+
+                <div id="s2-filelist" class="hidden">
+                    <div class="file-list-header">
+                        <span class="file-list-stats" id="s2-stats">共 <strong>5</strong> 个文件，已选 <strong>4</strong> 个</span>
+                        <button class="btn-import" id="s2-importBtn" onclick="startImport('s2')">开始导入</button>
+                    </div>
+                    <table class="file-table">
+                        <thead>
+                            <tr>
+                                <th style="width:40px"><input type="checkbox" checked id="s2-checkall" onchange="toggleAll('s2')"></th>
+                                <th>文件名</th>
+                                <th style="width:80px">大小</th>
+                                <th style="width:70px">类型</th>
+                            </tr>
+                        </thead>
+                        <tbody id="s2-tbody">
+                            <tr><td><input type="checkbox" checked class="s2-check"></td><td>第1集-小飞侠预告.mp4</td><td class="file-size">312 MB</td><td><span class="file-type-tag tag-video">视频</span></td></tr>
+                            <tr><td><input type="checkbox" checked class="s2-check"></td><td>第2集-小飞侠预告.mp4</td><td class="file-size">298 MB</td><td><span class="file-type-tag tag-video">视频</span></td></tr>
+                            <tr><td><input type="checkbox" checked class="s2-check"></td><td>第3集-小飞侠预告.mp4</td><td class="file-size">256 MB</td><td><span class="file-type-tag tag-video">视频</span></td></tr>
+                            <tr><td><input type="checkbox" checked class="s2-check"></td><td>第4集-小飞侠预告.mp4</td><td class="file-size">305 MB</td><td><span class="file-type-tag tag-video">视频</span></td></tr>
+                            <tr class="row-disabled"><td><input type="checkbox" disabled></td><td>字幕文件.srt <span style="font-size:11px;color:#ccc">(类型不匹配)</span></td><td class="file-size">42 KB</td><td><span class="file-type-tag tag-subtitle">字幕</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="s2-taskstatus" class="hidden">
+                    <div id="s2-result-banner"></div>
+                    <table class="file-table">
+                        <thead>
+                            <tr>
+                                <th style="width:30px">#</th>
+                                <th>文件名</th>
+                                <th style="width:80px">状态</th>
+                                <th style="width:200px">进度</th>
+                                <th style="width:50px">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="s2-task-tbody"></tbody>
+                    </table>
+                    <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;">
+                        <button class="btn-reset hidden" id="s2-resetBtn" onclick="resetNetdisk('s2')">重新导入</button>
+                    </div>
+                    <div class="summary-bar" id="s2-summary"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other tabs (placeholder) -->
+        <div class="upload-content hidden" id="s2-tab-nosub">
+            <div class="mode-switch">
+                <button class="mode-btn active">本地上传</button>
+                <button class="mode-btn">网盘链接导入</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>
+                <div class="upload-text">将文件拖到此处，或<a>点击上传</a></div>
+                <div class="upload-hint">推荐扩展名：.mp4</div>
+            </div>
+        </div>
+        <div class="upload-content hidden" id="s2-tab-sub">
+            <div class="mode-switch">
+                <button class="mode-btn active">本地上传</button>
+                <button class="mode-btn">网盘链接导入</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>
+                <div class="upload-text">将文件拖到此处，或<a>点击上传</a></div>
+                <div class="upload-hint">推荐扩展名：.srt / .ass</div>
+            </div>
+        </div>
+        <div class="upload-content hidden" id="s2-tab-audio">
+            <div class="mode-switch">
+                <button class="mode-btn active">本地上传</button>
+                <button class="mode-btn">网盘链接导入</button>
+            </div>
+            <div class="upload-zone">
+                <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>
+                <div class="upload-text">将文件拖到此处，或<a>点击上传</a></div>
+                <div class="upload-hint">推荐扩展名：.mp3 / .aac / .m4a</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div><!-- demo-container -->
+
+<!-- Validation Modal -->
+<div class="v-modal-overlay hidden" id="validationModal">
+    <div class="v-modal">
+        <div class="v-modal-icon" id="vm-icon"></div>
+        <div class="v-modal-title" id="vm-title"></div>
+        <div class="v-modal-desc" id="vm-desc"></div>
+        <div class="v-modal-actions" id="vm-actions"></div>
+    </div>
+</div>
+
+<script>
+/* ---- Demo scene switch ---- */
+function switchDemo(id) {
+    document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('demo-' + id).classList.add('active');
+}
+
+/* ---- Mode switch ---- */
+function switchMode(btn, showId, hideId) {
+    const group = btn.parentElement;
+    group.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(showId).classList.remove('hidden');
+    document.getElementById(hideId).classList.add('hidden');
+}
+
+/* ---- Upload tab switch (scene 2) ---- */
+function switchUploadTab(tab, contentId) {
+    document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.upload-content').forEach(c => c.classList.add('hidden'));
+    document.getElementById(contentId).classList.remove('hidden');
+}
+
+/* ---- Smart paste (auto-fill extract code) ---- */
+document.addEventListener('paste', function(e) {
+    const target = e.target;
+    if (!target.classList.contains('form-input')) return;
+    const id = target.id;
+    if (!id || !id.includes('-link')) return;
+    const prefix = id.replace('-link', '');
+    setTimeout(() => {
+        const val = target.value;
+        const codeMatch = val.match(/提取码\s*[:：]\s*([a-zA-Z0-9]{4})/);
+        const urlMatch = val.match(/(https?:\/\/pan\.baidu\.com\/s\/[^\s?]+)/);
+        if (urlMatch) target.value = urlMatch[1];
+        if (codeMatch) {
+            const codeInput = document.getElementById(prefix + '-code');
+            if (codeInput) codeInput.value = codeMatch[1];
+        }
+    }, 50);
+});
+
+/* ---- Parse link (simulated) ---- */
+function parseLink(prefix) {
+    const linkInput = document.getElementById(prefix + '-link');
+    const btn = document.getElementById(prefix + '-parseBtn');
+    if (!linkInput.value.trim()) {
+        linkInput.classList.add('error');
+        let errDiv = document.getElementById(prefix + '-err');
+        if (!errDiv) {
+            errDiv = document.createElement('div');
+            errDiv.id = prefix + '-err';
+            errDiv.className = 'form-error';
+            btn.closest('.netdisk-form').appendChild(errDiv);
+        }
+        errDiv.textContent = '请输入百度网盘分享链接';
+        return;
+    }
+    linkInput.classList.remove('error');
+    const errDiv = document.getElementById(prefix + '-err');
+    if (errDiv) errDiv.remove();
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+    btn.textContent = '解析中';
+
+    setTimeout(() => {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+        btn.textContent = '解析链接';
+        document.getElementById(prefix + '-filelist').classList.remove('hidden');
+    }, 1500);
+}
+
+/* ---- Toggle all checkboxes ---- */
+function toggleAll(prefix) {
+    const all = document.getElementById(prefix + '-checkall');
+    document.querySelectorAll('.' + prefix + '-check').forEach(cb => {
+        if (!cb.disabled) cb.checked = all.checked;
+    });
+}
+
+/* ---- Task simulation data ---- */
+const taskData = {
+    s1: [
+        { name: '第3集-小飞侠预告.mp4', finalStatus: 'done' }
+    ],
+    s2: [
+        { name: '第1集-小飞侠预告.mp4', finalStatus: 'done' },
+        { name: '第2集-小飞侠预告.mp4', finalStatus: 'done' },
+        { name: '第3集-小飞侠预告.mp4', finalStatus: 'fail', error: '下载超时，请重试' },
+        { name: '第4集-小飞侠预告.mp4', finalStatus: 'done' },
+    ]
+};
+
+const statusFlow = ['waiting', 'transferring', 'downloading', 'uploading', 'done'];
+const statusLabels = {
+    waiting: ['等待中', 'status-waiting'],
+    transferring: ['转存中', 'status-processing'],
+    downloading: ['下载中', 'status-processing'],
+    uploading: ['上传中', 'status-processing'],
+    done: ['已完成', 'status-done'],
+    fail: ['失败', 'status-fail'],
+};
+
+let taskTimers = {};
+let taskStates = {};
+let s2HasActiveTask = false;
+
+function startImport(prefix) {
+    const data = taskData[prefix];
+    document.getElementById(prefix + '-filelist').classList.add('hidden');
+    document.getElementById(prefix + '-taskstatus').classList.remove('hidden');
+    document.getElementById(prefix + '-result-banner').innerHTML = '';
+
+    taskStates[prefix] = data.map((f, i) => ({
+        ...f,
+        index: i,
+        currentStep: 0,
+        progress: 0,
+        status: 'waiting'
+    }));
+
+    if (prefix === 's2') {
+        s2HasActiveTask = true;
+        document.getElementById('s2-task-hint').classList.remove('hidden');
+    }
+
+    renderTaskTable(prefix);
+    simulateTasks(prefix);
+}
+
+function renderTaskTable(prefix) {
+    const tbody = document.getElementById(prefix + '-task-tbody');
+    const states = taskStates[prefix];
+    let html = '';
+    states.forEach((f, i) => {
+        const [label, cls] = statusLabels[f.status] || statusLabels.waiting;
+        let progressHtml = '';
+        let actionHtml = '';
+        if (f.status === 'done') {
+            progressHtml = '<div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div><div class="progress-text">100%</div>';
+        } else if (f.status === 'fail') {
+            progressHtml = '<div style="font-size:12px;color:#ff4d4d;">' + (f.error || '未知错误') + '</div>';
+            actionHtml = '<a class="retry-link" onclick="retryFile(\'' + prefix + '\',' + i + ')">重试</a>';
+        } else if (f.status === 'waiting') {
+            progressHtml = '<div class="progress-bar"><div class="progress-fill blue" style="width:0%"></div></div><div class="progress-text">排队中</div>';
+        } else {
+            progressHtml = '<div class="progress-bar"><div class="progress-fill blue" style="width:' + f.progress + '%"></div></div><div class="progress-text">' + f.progress + '%</div>';
+        }
+        html += '<tr><td>' + (i+1) + '</td><td>' + f.name + '</td><td><span class="status-badge ' + cls + '">' + label + '</span></td><td>' + progressHtml + '</td><td>' + actionHtml + '</td></tr>';
+    });
+    tbody.innerHTML = html;
+
+    // Update summary for s2
+    if (prefix === 's2') {
+        const done = states.filter(s => s.status === 'done').length;
+        const fail = states.filter(s => s.status === 'fail').length;
+        const processing = states.filter(s => ['transferring','downloading','uploading'].includes(s.status)).length;
+        const waiting = states.filter(s => s.status === 'waiting').length;
+        const total = states.length;
+        if (done + fail === total) {
+            document.getElementById('s2-summary').textContent = '导入完成，' + done + ' 成功，' + fail + ' 失败';
+        } else {
+            document.getElementById('s2-summary').textContent = '共 ' + total + ' 个文件，' + done + ' 已完成，' + fail + ' 失败，' + processing + ' 进行中，' + waiting + ' 等待中';
+        }
+    }
+}
+
+function simulateTasks(prefix) {
+    if (taskTimers[prefix]) clearInterval(taskTimers[prefix]);
+    let tick = 0;
+    taskTimers[prefix] = setInterval(() => {
+        tick++;
+        const states = taskStates[prefix];
+        let allDone = true;
+
+        states.forEach((f, i) => {
+            if (f.status === 'done' || f.status === 'fail') return;
+            allDone = false;
+
+            // Stagger start: each file starts 2 ticks after previous
+            const startTick = i * 2;
+            if (tick < startTick) return;
+
+            const elapsed = tick - startTick;
+
+            if (f.finalStatus === 'fail' && elapsed > 8) {
+                f.status = 'fail';
+                return;
+            }
+
+            if (elapsed <= 2) {
+                f.status = 'transferring';
+                f.progress = Math.min(elapsed * 40, 80);
+            } else if (elapsed <= 5) {
+                f.status = 'downloading';
+                f.progress = Math.min((elapsed - 2) * 25 + 10, 90);
+            } else if (elapsed <= 8) {
+                f.status = 'uploading';
+                f.progress = Math.min((elapsed - 5) * 30 + 10, 95);
+            } else {
+                f.status = 'done';
+                f.progress = 100;
+            }
+        });
+
+        renderTaskTable(prefix);
+
+        if (states.every(f => f.status === 'done' || f.status === 'fail')) {
+            clearInterval(taskTimers[prefix]);
+            showResult(prefix);
+            if (prefix === 's2') {
+                s2HasActiveTask = false;
+                document.getElementById('s2-task-hint').classList.add('hidden');
+            }
+        }
+    }, 600);
+}
+
+function showResult(prefix) {
+    const states = taskStates[prefix];
+    const done = states.filter(s => s.status === 'done').length;
+    const fail = states.filter(s => s.status === 'fail').length;
+    const total = states.length;
+    const banner = document.getElementById(prefix + '-result-banner');
+    const resetBtn = document.getElementById(prefix + '-resetBtn');
+
+    if (fail === 0) {
+        banner.innerHTML = '<div class="result-banner result-success">&#10003; 全部导入成功，共 ' + total + ' 个文件</div>';
+    } else if (done > 0) {
+        banner.innerHTML = '<div class="result-banner result-warning">&#9888; 导入完成，' + done + ' 个成功，' + fail + ' 个失败<button class="btn-retry-all" onclick="retryAllFailed(\'' + prefix + '\')">重试失败项</button></div>';
+    } else {
+        banner.innerHTML = '<div class="result-banner result-error">&#10007; 导入失败，请检查链接是否有效或联系技术支持<button class="btn-retry-all" onclick="retryAllFailed(\'' + prefix + '\')">全部重试</button></div>';
+    }
+    resetBtn.classList.remove('hidden');
+}
+
+function retryFile(prefix, idx) {
+    const states = taskStates[prefix];
+    states[idx].status = 'waiting';
+    states[idx].progress = 0;
+    states[idx].finalStatus = 'done'; // retry succeeds
+    renderTaskTable(prefix);
+    if (prefix === 's2') {
+        s2HasActiveTask = true;
+        document.getElementById('s2-task-hint').classList.remove('hidden');
+    }
+    document.getElementById(prefix + '-result-banner').innerHTML = '';
+    document.getElementById(prefix + '-resetBtn').classList.add('hidden');
+    simulateTasks(prefix);
+}
+
+function retryAllFailed(prefix) {
+    const states = taskStates[prefix];
+    states.forEach(f => {
+        if (f.status === 'fail') {
+            f.status = 'waiting';
+            f.progress = 0;
+            f.finalStatus = 'done';
+        }
+    });
+    renderTaskTable(prefix);
+    if (prefix === 's2') {
+        s2HasActiveTask = true;
+        document.getElementById('s2-task-hint').classList.remove('hidden');
+    }
+    document.getElementById(prefix + '-result-banner').innerHTML = '';
+    document.getElementById(prefix + '-resetBtn').classList.add('hidden');
+    simulateTasks(prefix);
+}
+
+function resetNetdisk(prefix) {
+    if (taskTimers[prefix]) clearInterval(taskTimers[prefix]);
+    document.getElementById(prefix + '-taskstatus').classList.add('hidden');
+    document.getElementById(prefix + '-filelist').classList.add('hidden');
+    document.getElementById(prefix + '-result-banner').innerHTML = '';
+    document.getElementById(prefix + '-resetBtn').classList.add('hidden');
+    document.getElementById(prefix + '-link').value = '';
+    document.getElementById(prefix + '-code').value = '';
+    if (prefix === 's2') {
+        s2HasActiveTask = false;
+        document.getElementById('s2-task-hint').classList.add('hidden');
+        document.getElementById('s2-summary').textContent = '';
+    }
+}
+
+/* ---- Validation modals ---- */
+function showValidationModal(type) {
+    const modal = document.getElementById('validationModal');
+    const icon = document.getElementById('vm-icon');
+    const title = document.getElementById('vm-title');
+    const desc = document.getElementById('vm-desc');
+    const actions = document.getElementById('vm-actions');
+
+    if (type === 'inprogress') {
+        icon.textContent = '⏳';
+        title.textContent = '有导入任务进行中';
+        desc.textContent = '当前有网盘导入任务正在进行中，请等待任务完成后再提交。';
+        actions.innerHTML = '<button class="v-btn v-btn-primary" onclick="closeValidation()">我知道了</button>';
+    } else if (type === 'hasfail') {
+        icon.textContent = '⚠️';
+        title.textContent = '部分文件导入失败';
+        desc.textContent = '当前有文件导入失败，是否仍要提交？';
+        actions.innerHTML = '<button class="v-btn v-btn-default" onclick="closeValidation()">返回处理</button><button class="v-btn v-btn-primary" onclick="closeValidation();alert(\'提交成功\')">继续提交</button>';
+    } else if (type === 'close') {
+        // Check if s1 has active task
+        const s1States = taskStates['s1'];
+        if (s1States && s1States.some(f => !['done','fail'].includes(f.status))) {
+            icon.textContent = '⚠️';
+            title.textContent = '确认关闭？';
+            desc.textContent = '关闭弹窗不会取消正在进行的导入任务，是否关闭？';
+            actions.innerHTML = '<button class="v-btn v-btn-default" onclick="closeValidation()">取消</button><button class="v-btn v-btn-primary" onclick="closeValidation()">确认关闭</button>';
+        } else {
+            return; // no active task, just close
+        }
+    }
+
+    modal.classList.remove('hidden');
+}
+
+function closeValidation() {
+    document.getElementById('validationModal').classList.add('hidden');
+}
+
+function confirmSubmit() {
+    // Check task states
+    const states = taskStates['s2'];
+    if (!states) {
+        alert('提交成功');
+        return;
+    }
+
+    if (s2HasActiveTask) {
+        showValidationModal('inprogress');
+        return;
+    }
+
+    const hasFail = states.some(f => f.status === 'fail');
+    if (hasFail) {
+        showValidationModal('hasfail');
+        return;
+    }
+
+    alert('提交成功');
+}
+
+/* Click outside validation modal to close */
+document.getElementById('validationModal').addEventListener('click', function(e) {
+    if (e.target === this) closeValidation();
+});
+</script>
+
+</body>
+</html>
