@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>系列剧配置交互 Demo</title>
+  <style>
+    :root {
+      --teal: #0db2b2;
+      --teal-dark: #089797;
+      --sidebar: #2c3448;
+      --topbar: #1a2234;
+      --page: #f0f2f5;
+      --card: #ffffff;
+      --text: #303846;
+      --muted: #7a8494;
+      --line: #d9dee7;
+      --danger: #e5484d;
+      --success: #15956f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+      font-size: 13px;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 188px 1fr; grid-template-rows: 48px 1fr; }
+    .brand {
+      grid-column: 1;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      background: #222a3c;
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: .3px;
+    }
+    .topbar {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: var(--topbar);
+      color: #cdd3df;
+    }
+    .topbar strong { color: #fff; font-weight: 500; }
+    .sidebar { grid-column: 1; grid-row: 2; background: var(--sidebar); color: #b9c0cf; padding: 12px 0; }
+    .nav-group { padding: 9px 17px; color: #7f899b; font-size: 11px; text-transform: uppercase; }
+    .nav-item { padding: 10px 18px; border-left: 3px solid transparent; }
+    .nav-item.active { color: #fff; background: rgba(13,178,178,.14); border-left-color: var(--teal); }
+    .main { grid-column: 2; grid-row: 2; padding: 16px 20px 28px; overflow: auto; }
+    .breadcrumb { margin-bottom: 12px; color: var(--muted); }
+    .title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .page-title { display: flex; align-items: center; gap: 9px; font-size: 17px; font-weight: 600; }
+    .page-title::before { content: ""; width: 4px; height: 18px; background: var(--teal); border-radius: 1px; }
+    .demo-note { margin-left: auto; color: #8a94a4; font-size: 12px; }
+    .view-switch { display: inline-flex; margin-left: 12px; border: 1px solid #cbd2dc; border-radius: 3px; overflow: hidden; }
+    .view-button { height: 32px; padding: 0 13px; border: 0; border-right: 1px solid #cbd2dc; background: #fff; color: #596476; }
+    .view-button:last-child { border-right: 0; }
+    .view-button.active { background: var(--teal); color: #fff; }
+    .card { background: var(--card); border: 1px solid #e2e6ec; box-shadow: 0 1px 3px rgba(35,47,62,.05); }
+    .tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--line); background: #fafbfc; }
+    .tab { padding: 11px 18px; color: #667184; border: 0; border-right: 1px solid #e7eaf0; background: transparent; }
+    .tab.active { background: var(--teal); color: #fff; }
+    .detail-tabs .tab.active { background: #fff; color: #3f4857; font-weight: 600; border-top: 2px solid var(--teal); }
+    .section { padding: 18px 22px 8px; }
+    .section + .section { border-top: 1px solid #edf0f3; }
+    .section-title { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; font-size: 14px; font-weight: 600; }
+    .section-title::before { content: ""; width: 3px; height: 14px; background: var(--teal); }
+    .form-row { display: grid; grid-template-columns: 118px minmax(260px, 520px) 1fr; align-items: start; min-height: 44px; margin-bottom: 12px; }
+    .label { padding: 8px 12px 0 0; text-align: right; color: #4d5665; }
+    .required { color: var(--danger); margin-right: 3px; }
+    .field { min-width: 0; }
+    .control {
+      width: 100%;
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid #cdd4dd;
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+    .control:focus { border-color: var(--teal); box-shadow: 0 0 0 2px rgba(13,178,178,.12); }
+    .control[readonly], .control:disabled { background: #f4f6f8; color: #778191; }
+    .radio-tabs { display: inline-flex; border: 1px solid #cdd4dd; border-radius: 3px; overflow: hidden; }
+    .radio-tab { position: relative; min-width: 116px; padding: 7px 15px; background: #fff; color: #566174; text-align: center; border-right: 1px solid #cdd4dd; cursor: pointer; }
+    .radio-tab:last-child { border-right: 0; }
+    .radio-tab input { position: absolute; opacity: 0; pointer-events: none; }
+    .radio-tab.active { background: var(--teal); color: #fff; }
+    .input-action { display: flex; gap: 7px; }
+    .input-action .control { flex: 1; }
+    .btn { height: 34px; padding: 0 15px; border: 1px solid #c9d0d9; border-radius: 3px; background: #fff; color: #465161; }
+    .btn:hover { border-color: var(--teal); color: var(--teal-dark); }
+    .btn-primary { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .btn-primary:hover { background: var(--teal-dark); color: #fff; }
+    .help { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .message { min-height: 18px; margin-top: 4px; font-size: 12px; }
+    .message.error { color: var(--danger); }
+    .message.success { color: var(--success); }
+    .root-summary { display: none; grid-template-columns: 1.5fr .75fr .75fr; gap: 1px; margin-top: 8px; background: var(--line); border: 1px solid var(--line); }
+    .root-summary.show { display: grid; }
+    .root-summary > div { padding: 9px 11px; background: #f9fafb; }
+    .meta-label { display: block; margin-bottom: 3px; color: var(--muted); font-size: 11px; }
+    .actions { display: flex; justify-content: flex-end; gap: 8px; padding: 13px 22px; border-top: 1px solid var(--line); background: #fafbfc; }
+    .detail-toolbar { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 18px 0; }
+    .icon-btn { width: 34px; padding: 0; }
+    .detail-content { min-height: 340px; padding: 18px; }
+    .relation-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .relation-table th, .relation-table td { border: 1px solid #d9dee5; padding: 12px 10px; text-align: center; word-break: break-word; }
+    .relation-table th { background: #fafafa; color: #4b5565; font-weight: 600; }
+    .relation-table td { color: #3f9d84; }
+    .relation-table tr.current td { background: #f2fbfa; }
+    .placeholder { padding: 56px 20px; color: var(--muted); text-align: center; }
+    .hidden { display: none !important; }
+    .toast { position: fixed; top: 62px; right: 20px; max-width: 350px; padding: 11px 16px; border-radius: 4px; background: #223043; color: #fff; box-shadow: 0 8px 26px rgba(0,0,0,.18); opacity: 0; transform: translateY(-8px); pointer-events: none; transition: .18s ease; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; grid-template-rows: 48px 1fr; }
+      .brand, .sidebar { display: none; }
+      .topbar, .main { grid-column: 1; }
+      .main { padding: 12px; }
+      .title-row { align-items: flex-start; flex-wrap: wrap; }
+      .view-switch { margin-left: 0; }
+      .form-row { grid-template-columns: 1fr; }
+      .label { text-align: left; padding: 0 0 6px; }
+      .root-summary { grid-template-columns: 1fr; }
+      .demo-note { display: none; }
+      .relation-table { min-width: 720px; }
+      .table-wrap { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="brand">DramaHub 内容中台</div>
+    <header class="topbar">
+      <strong>海外内容中台</strong>
+      <span>韩泽 · 中台产品管理员</span>
+    </header>
+    <aside class="sidebar">
+      <div class="nav-group">内容管理</div>
+      <div class="nav-item active">原始片库</div>
+      <div class="nav-item">无字幕片库</div>
+      <div class="nav-item">短剧资产库</div>
+      <div class="nav-item">字幕合成</div>
+      <div class="nav-group">运营配置</div>
+      <div class="nav-item">基础配置</div>
+      <div class="nav-item">系统设置</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">海外内容中台 / 内容管理 / 原始片库</div>
+      <div class="title-row">
+        <div class="page-title" id="page-title">修改短剧配置</div>
+        <div class="view-switch" aria-label="Demo 场景切换">
+          <button class="view-button active" id="show-edit" type="button">编辑页系列配置</button>
+          <button class="view-button" id="show-detail" type="button">详情页系列关系</button>
+        </div>
+        <span class="demo-note">模拟数据 · 不接入生产接口 · 不保存数据</span>
+      </div>
+
+      <section class="card" id="edit-view">
+        <nav class="tabs" aria-label="配置页签">
+          <button class="tab active" type="button">书籍基本信息</button>
+          <button class="tab" type="button">书籍分类信息</button>
+          <button class="tab" type="button">书籍标签</button>
+          <button class="tab" type="button">短剧剧照</button>
+          <button class="tab" type="button">演员配置</button>
+        </nav>
+
+        <div class="section">
+          <h2 class="section-title">基本信息</h2>
+          <div class="form-row">
+            <div class="label"><span class="required">*</span>短剧名称</div>
+            <div class="field"><input class="control" value="霸总归来 第三季"></div>
+          </div>
+          <div class="form-row">
+            <div class="label">短剧 ID</div>
+            <div class="field"><input class="control" value="10003" readonly></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2 class="section-title">系列配置</h2>
+          <div class="form-row">
+            <div class="label"><span class="required">*</span>系列角色</div>
+            <div class="field">
+              <div class="radio-tabs" role="radiogroup" aria-label="系列角色">
+                <label class="radio-tab active" id="root-role-label">
+                  <input type="radio" name="series-role" value="root" checked>系列根剧
+                </label>
+                <label class="radio-tab" id="member-role-label">
+                  <input type="radio" name="series-role" value="member">系列成员剧
+                </label>
+              </div>
+              <div class="help">默认为系列根剧；系列配置不依赖父子剧关系。</div>
+            </div>
+          </div>
+
+          <div id="root-panel">
+            <div class="form-row">
+              <div class="label">系列根剧 ID</div>
+              <div class="field">
+                <input class="control" value="10003" readonly>
+                <div class="help">系列根剧自动使用当前剧 ID。</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="label">季序号</div>
+              <div class="field">
+                <input id="root-season" class="control" type="number" min="1" step="1" inputmode="numeric" placeholder="可不填，留空默认为第 1 季">
+                <div id="root-season-message" class="message" role="alert" aria-live="polite"></div>
+                <div class="help">非必填；留空提交时按第 1 季保存。</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="member-panel" class="hidden">
+            <div class="form-row">
+              <div class="label"><span class="required">*</span>系列根剧 ID</div>
+              <div class="field">
+                <div class="input-action">
+                  <input id="root-id" class="control" inputmode="numeric" placeholder="输入根剧 ID，试试 10001 或 10002">
+                  <button class="btn" id="search-root" type="button">检索</button>
+                </div>
+                <div id="root-message" class="message" role="alert" aria-live="polite"></div>
+                <div id="root-summary" class="root-summary">
+                  <div><span class="meta-label">根剧名称</span>《霸总归来》第一季</div>
+                  <div><span class="meta-label">根剧 ID</span>10001</div>
+                  <div><span class="meta-label">已有季度</span>第 1、2 季</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="label"><span class="required">*</span>季序号</div>
+              <div class="field">
+                <input id="member-season" class="control" type="number" min="1" step="1" inputmode="numeric" placeholder="请先检索系列根剧" disabled>
+                <div id="member-season-message" class="message" role="alert" aria-live="polite"></div>
+                <div class="help">必填数字输入框；检索通过后默认推荐下一可用季序号，可手动修改。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" type="button">取消</button>
+          <button class="btn btn-primary" id="submit" type="button">提交</button>
+        </div>
+      </section>
+
+      <section class="card hidden" id="detail-view">
+        <nav class="tabs detail-tabs" aria-label="短剧详情页签">
+          <button class="tab detail-tab" data-panel="info" type="button">短剧信息</button>
+          <button class="tab detail-tab" data-panel="copyright" type="button">版权</button>
+          <button class="tab detail-tab" data-panel="source" type="button">原始配置</button>
+          <button class="tab detail-tab" data-panel="attachment" type="button">附件</button>
+          <button class="tab detail-tab" data-panel="episodes" type="button">剧集</button>
+          <button class="tab detail-tab" data-panel="actors" type="button">演员信息</button>
+          <button class="tab detail-tab" data-panel="parent" type="button">父子关系</button>
+          <button class="tab detail-tab active" data-panel="series" type="button">系列关系</button>
+        </nav>
+        <div class="detail-toolbar">
+          <button class="btn icon-btn" id="refresh-table" type="button" aria-label="刷新">↻</button>
+          <button class="btn" type="button">列 ▾</button>
+        </div>
+        <div class="detail-content">
+          <div id="series-panel" class="table-wrap">
+            <table class="relation-table">
+              <thead>
+                <tr>
+                  <th>短剧 ID</th>
+                  <th>短剧名称</th>
+                  <th>系列根剧 ID</th>
+                  <th>季序号</th>
+                  <th>系列角色</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>10001</td>
+                  <td>霸总归来 第一季</td>
+                  <td>10001</td>
+                  <td>第 1 季</td>
+                  <td>系列根剧</td>
+                </tr>
+                <tr>
+                  <td>10002</td>
+                  <td>霸总归来 第二季</td>
+                  <td>10001</td>
+                  <td>第 2 季</td>
+                  <td>系列成员剧</td>
+                </tr>
+                <tr class="current">
+                  <td>10003</td>
+                  <td>霸总归来 第三季（当前剧）</td>
+                  <td>10001</td>
+                  <td>第 3 季</td>
+                  <td>系列成员剧</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="other-panel" class="placeholder hidden">该 Tab 仅用于展示“系列关系”的位置，其他详情内容未在本 Demo 中展开。</div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <script>
+    const showEdit = document.getElementById('show-edit');
+    const showDetail = document.getElementById('show-detail');
+    const editView = document.getElementById('edit-view');
+    const detailView = document.getElementById('detail-view');
+    const pageTitle = document.getElementById('page-title');
+    const rootRole = document.querySelector('input[value="root"]');
+    const memberRole = document.querySelector('input[value="member"]');
+    const rootLabel = document.getElementById('root-role-label');
+    const memberLabel = document.getElementById('member-role-label');
+    const rootPanel = document.getElementById('root-panel');
+    const memberPanel = document.getElementById('member-panel');
+    const rootSeason = document.getElementById('root-season');
+    const rootSeasonMessage = document.getElementById('root-season-message');
+    const rootId = document.getElementById('root-id');
+    const searchRoot = document.getElementById('search-root');
+    const rootMessage = document.getElementById('root-message');
+    const rootSummary = document.getElementById('root-summary');
+    const memberSeason = document.getElementById('member-season');
+    const memberSeasonMessage = document.getElementById('member-season-message');
+    const submit = document.getElementById('submit');
+    const toast = document.getElementById('toast');
+    const seriesPanel = document.getElementById('series-panel');
+    const otherPanel = document.getElementById('other-panel');
+    let verifiedRoot = false;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    function setView(view) {
+      const detail = view === 'detail';
+      editView.classList.toggle('hidden', detail);
+      detailView.classList.toggle('hidden', !detail);
+      showEdit.classList.toggle('active', !detail);
+      showDetail.classList.toggle('active', detail);
+      pageTitle.textContent = detail ? '短剧详情' : '修改短剧配置';
+    }
+
+    function resetMemberFields() {
+      rootId.value = '';
+      rootMessage.textContent = '';
+      rootMessage.className = 'message';
+      rootSummary.classList.remove('show');
+      memberSeason.value = '';
+      memberSeason.disabled = true;
+      memberSeason.placeholder = '请先检索系列根剧';
+      memberSeasonMessage.textContent = '';
+      memberSeasonMessage.className = 'message';
+      verifiedRoot = false;
+    }
+
+    function switchRole(role) {
+      const member = role === 'member';
+      rootPanel.classList.toggle('hidden', member);
+      memberPanel.classList.toggle('hidden', !member);
+      rootLabel.classList.toggle('active', !member);
+      memberLabel.classList.toggle('active', member);
+      rootSeasonMessage.textContent = '';
+      if (!member) resetMemberFields();
+    }
+
+    function isPositiveInteger(value) {
+      return /^\d+$/.test(value) && Number(value) >= 1;
+    }
+
+    function validateRoot() {
+      const value = rootId.value.trim();
+      verifiedRoot = false;
+      rootSummary.classList.remove('show');
+      memberSeason.value = '';
+      memberSeason.disabled = true;
+      memberSeasonMessage.textContent = '';
+
+      if (!value) {
+        rootMessage.textContent = '请填写系列根剧 ID';
+        rootMessage.className = 'message error';
+        return;
+      }
+      if (value === '10003') {
+        rootMessage.textContent = '系列成员剧不能关联自身';
+        rootMessage.className = 'message error';
+        return;
+      }
+      if (value === '10002') {
+        rootMessage.textContent = '剧 ID 10002 已属于系列 10001，不能作为新系列根剧';
+        rootMessage.className = 'message error';
+        return;
+      }
+      if (value !== '10001') {
+        rootMessage.textContent = '未找到有效的系列根剧，请检查剧 ID';
+        rootMessage.className = 'message error';
+        return;
+      }
+
+      verifiedRoot = true;
+      rootMessage.textContent = '校验通过：该剧为系列根剧';
+      rootMessage.className = 'message success';
+      rootSummary.classList.add('show');
+      memberSeason.disabled = false;
+      memberSeason.placeholder = '输入季序号';
+      memberSeason.value = '3';
+    }
+
+    showEdit.addEventListener('click', () => setView('edit'));
+    showDetail.addEventListener('click', () => setView('detail'));
+    document.querySelectorAll('input[name="series-role"]').forEach(input => {
+      input.addEventListener('change', () => switchRole(input.value));
+    });
+    searchRoot.addEventListener('click', validateRoot);
+    rootId.addEventListener('keydown', event => {
+      if (event.key === 'Enter') validateRoot();
+    });
+    rootId.addEventListener('input', () => {
+      verifiedRoot = false;
+      rootSummary.classList.remove('show');
+      memberSeason.value = '';
+      memberSeason.disabled = true;
+    });
+    document.querySelectorAll('.detail-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.detail-tab').forEach(item => item.classList.remove('active'));
+        tab.classList.add('active');
+        const showSeries = tab.dataset.panel === 'series';
+        seriesPanel.classList.toggle('hidden', !showSeries);
+        otherPanel.classList.toggle('hidden', showSeries);
+      });
+    });
+    document.getElementById('refresh-table').addEventListener('click', () => showToast('系列关系已刷新（Demo 模拟）'));
+    submit.addEventListener('click', () => {
+      if (memberRole.checked) {
+        if (!verifiedRoot) {
+          rootMessage.textContent = rootId.value.trim() ? '请先完成系列根剧 ID 检索校验' : '请填写系列根剧 ID';
+          rootMessage.className = 'message error';
+          rootId.focus();
+          return;
+        }
+        const season = memberSeason.value.trim();
+        if (!season) {
+          memberSeasonMessage.textContent = '请填写季序号';
+          memberSeasonMessage.className = 'message error';
+          memberSeason.focus();
+          return;
+        }
+        if (!isPositiveInteger(season)) {
+          memberSeasonMessage.textContent = '季序号必须为大于等于 1 的整数';
+          memberSeasonMessage.className = 'message error';
+          return;
+        }
+        if (season === '1' || season === '2') {
+          memberSeasonMessage.textContent = `第 ${season} 季已被占用，请填写其他季序号`;
+          memberSeasonMessage.className = 'message error';
+          return;
+        }
+        memberSeasonMessage.textContent = '';
+        showToast(`Demo 校验通过：系列 10001 · 第 ${season} 季（未真实保存）`);
+      } else {
+        const season = rootSeason.value.trim();
+        if (season && !isPositiveInteger(season)) {
+          rootSeasonMessage.textContent = '季序号必须为大于等于 1 的整数';
+          rootSeasonMessage.className = 'message error';
+          rootSeason.focus();
+          return;
+        }
+        rootSeasonMessage.textContent = '';
+        showToast(`Demo 校验通过：系列根剧 · 第 ${season || '1'} 季（未真实保存）`);
+      }
+    });
+  </script>
+</body>
+</html>
