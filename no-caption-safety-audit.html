@@ -1858,6 +1858,16 @@ html&gt;body{padding:0}&lt;/style&gt;
     #frameReviewDemoV2 .fr2-panel-toolbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 13px; border-bottom:1px solid var(--c-line); }
     #frameReviewDemoV2 .fr2-filter-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     #frameReviewDemoV2 .fr2-input { min-height:34px; padding:6px 9px; border:1px solid var(--c-line); border-radius:3px; background:var(--c-panel); }
+    #frameReviewDemoV2 .fr2-business-tabs { display:flex; align-items:center; gap:4px; padding:0 13px; border-bottom:1px solid var(--c-line); background:var(--c-panel); }
+    #frameReviewDemoV2 .fr2-business-tab { min-height:43px; padding:8px 14px; border:0; border-bottom:2px solid transparent; color:var(--c-muted); background:transparent; }
+    #frameReviewDemoV2 .fr2-business-tab.active { color:var(--c-teal-dark); border-bottom-color:var(--c-teal); font-weight:500; }
+    #frameReviewDemoV2 .fr2-business-tab:disabled { opacity:.52; cursor:not-allowed; }
+    #frameReviewDemoV2 .fr2-filter-panel { display:grid; grid-template-columns:repeat(4,minmax(150px,1fr)); gap:12px; padding:14px 13px; border-bottom:1px solid var(--c-line); }
+    #frameReviewDemoV2 .fr2-filter-field { display:grid; gap:5px; color:var(--c-muted); }
+    #frameReviewDemoV2 .fr2-filter-field .fr2-input { width:100%; color:var(--c-text); }
+    #frameReviewDemoV2 .fr2-filter-actions { display:flex; align-items:flex-end; gap:8px; padding:0 13px 14px; border-bottom:1px solid var(--c-line); }
+    #frameReviewDemoV2 .fr2-sort-note { margin-left:auto; color:var(--c-muted); }
+    #frameReviewDemoV2 .fr2-empty-table { padding:30px 12px !important; color:var(--c-muted); text-align:center !important; }
     #frameReviewDemoV2 .fr2-table-wrap { overflow-x:auto; }
     #frameReviewDemoV2 .fr2-table { width:100%; border-collapse:collapse; }
     #frameReviewDemoV2 .fr2-table th, #frameReviewDemoV2 .fr2-table td { padding:10px; border-bottom:1px solid var(--c-line); text-align:left; white-space:nowrap; }
@@ -1968,8 +1978,8 @@ html&gt;body{padding:0}&lt;/style&gt;
     #frameReviewDemoV2 .fr2-modal-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; border-top: 1px solid var(--c-line); color: var(--c-muted); }
     #frameReviewDemoV2 .fr2-toast { position: absolute; z-index: 30; top: 54px; left: 50%; transform: translate(-50%,-8px); padding: 8px 15px; border-radius: 3px; opacity: 0; pointer-events: none; color: #fff; background: #263244; transition: .18s ease; }
     #frameReviewDemoV2 .fr2-toast.show { transform: translate(-50%,0); opacity: 1; }
-    @media (max-width: 900px) { #frameReviewDemoV2 .fr2-page { grid-template-columns: 1fr; } #frameReviewDemoV2 .fr2-video { min-height: 460px; } #frameReviewDemoV2 .fr2-detail-head, #frameReviewDemoV2 .fr2-row { grid-template-columns: 60px minmax(0,1fr) 76px 72px; } }
-    @media (max-width: 580px) { #frameReviewDemoV2 .fr2-demo-note, #frameReviewDemoV2 .fr2-admin-head, #frameReviewDemoV2 .fr2-panel-toolbar, #frameReviewDemoV2 .fr2-result-head { align-items:flex-start; flex-direction:column; } #frameReviewDemoV2 .fr2-form-grid { grid-template-columns:1fr; } #frameReviewDemoV2 .fr2-form-label { text-align:left; } #frameReviewDemoV2 .fr2-top-grid { grid-template-columns: 1fr; } #frameReviewDemoV2 .fr2-controls { grid-template-columns: repeat(2,minmax(0,1fr)); } #frameReviewDemoV2 .fr2-select { width: 100%; } #frameReviewDemoV2 .fr2-detail-head { display: none; } #frameReviewDemoV2 .fr2-row { grid-template-columns: 60px minmax(0,1fr); } #frameReviewDemoV2 .fr2-frame-progress, #frameReviewDemoV2 .fr2-status { grid-column: 2; } #frameReviewDemoV2 .fr2-frame-card { grid-template-columns: 1fr; } #frameReviewDemoV2 .fr2-shot { min-height: 210px; } #frameReviewDemoV2 .fr2-modal-summary, #frameReviewDemoV2 .fr2-modal-foot { align-items: flex-start; flex-direction: column; } }
+    @media (max-width: 900px) { #frameReviewDemoV2 .fr2-page { grid-template-columns: 1fr; } #frameReviewDemoV2 .fr2-video { min-height: 460px; } #frameReviewDemoV2 .fr2-detail-head, #frameReviewDemoV2 .fr2-row { grid-template-columns: 60px minmax(0,1fr) 76px 72px; } #frameReviewDemoV2 .fr2-filter-panel { grid-template-columns:repeat(2,minmax(150px,1fr)); } }
+    @media (max-width: 580px) { #frameReviewDemoV2 .fr2-demo-note, #frameReviewDemoV2 .fr2-admin-head, #frameReviewDemoV2 .fr2-panel-toolbar, #frameReviewDemoV2 .fr2-result-head, #frameReviewDemoV2 .fr2-filter-actions { align-items:flex-start; flex-direction:column; } #frameReviewDemoV2 .fr2-form-grid, #frameReviewDemoV2 .fr2-filter-panel { grid-template-columns:1fr; } #frameReviewDemoV2 .fr2-form-label { text-align:left; } #frameReviewDemoV2 .fr2-top-grid { grid-template-columns: 1fr; } #frameReviewDemoV2 .fr2-controls { grid-template-columns: repeat(2,minmax(0,1fr)); } #frameReviewDemoV2 .fr2-select { width: 100%; } #frameReviewDemoV2 .fr2-detail-head { display: none; } #frameReviewDemoV2 .fr2-row { grid-template-columns: 60px minmax(0,1fr); } #frameReviewDemoV2 .fr2-frame-progress, #frameReviewDemoV2 .fr2-status { grid-column: 2; } #frameReviewDemoV2 .fr2-frame-card { grid-template-columns: 1fr; } #frameReviewDemoV2 .fr2-shot { min-height: 210px; } #frameReviewDemoV2 .fr2-modal-summary, #frameReviewDemoV2 .fr2-modal-foot { align-items: flex-start; flex-direction: column; } #frameReviewDemoV2 .fr2-sort-note { margin-left:0; } }
   &lt;/style&gt;
   &lt;div class=&quot;fr2-demo-note&quot;&gt;
     &lt;span class=&quot;fr2-demo-title&quot;&gt;无字幕片库安全审核 · 交互 Demo&lt;/span&gt;
@@ -1978,6 +1988,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         &lt;button class=&quot;fr2-demo-tab active&quot; type=&quot;button&quot; data-scene=&quot;list&quot;&gt;列表改造&lt;/button&gt;
         &lt;button class=&quot;fr2-demo-tab&quot; type=&quot;button&quot; data-scene=&quot;add&quot;&gt;添加页改造&lt;/button&gt;
         &lt;button class=&quot;fr2-demo-tab&quot; type=&quot;button&quot; data-scene=&quot;result&quot;&gt;机审与人审结果&lt;/button&gt;
+        &lt;button class=&quot;fr2-demo-tab&quot; type=&quot;button&quot; data-scene=&quot;audit&quot;&gt;人工审核页&lt;/button&gt;
       &lt;/div&gt;
       &lt;button class=&quot;fr2-reset&quot; id=&quot;fr2Reset&quot; type=&quot;button&quot;&gt;重置演示&lt;/button&gt;
     &lt;/div&gt;
@@ -2030,8 +2041,35 @@ html&gt;body{padding:0}&lt;/style&gt;
     &lt;/div&gt;
   &lt;/section&gt;
 
+  &lt;section class=&quot;fr2-scene&quot; id=&quot;fr2AuditScene&quot; hidden&gt;
+    &lt;div class=&quot;fr2-admin-page&quot;&gt;
+      &lt;div class=&quot;fr2-breadcrumb&quot;&gt;内容管理 / 人工审核&lt;/div&gt;
+      &lt;div class=&quot;fr2-admin-head&quot;&gt;&lt;h2&gt;人工审核&lt;/h2&gt;&lt;span class=&quot;fr2-current&quot;&gt;集中处理已送机审的数据&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;fr2-admin-panel&quot;&gt;
+        &lt;div class=&quot;fr2-business-tabs&quot; role=&quot;tablist&quot; aria-label=&quot;审核业务类型&quot;&gt;
+          &lt;button class=&quot;fr2-business-tab active&quot; type=&quot;button&quot; role=&quot;tab&quot; aria-selected=&quot;true&quot;&gt;无字幕片库&lt;/button&gt;
+          &lt;button class=&quot;fr2-business-tab&quot; type=&quot;button&quot; role=&quot;tab&quot; aria-selected=&quot;false&quot; disabled&gt;版权引入 · 暂未开放&lt;/button&gt;
+          &lt;button class=&quot;fr2-business-tab&quot; type=&quot;button&quot; role=&quot;tab&quot; aria-selected=&quot;false&quot; disabled&gt;素材 · 暂未开放&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;fr2-filter-panel&quot;&gt;
+          &lt;label class=&quot;fr2-filter-field&quot;&gt;机审状态&lt;select class=&quot;fr2-input&quot; id=&quot;fr2AuditMachine&quot;&gt;&lt;option value=&quot;&quot;&gt;全部&lt;/option&gt;&lt;option selected&gt;审核完成-拒绝&lt;/option&gt;&lt;option&gt;审核完成-通过&lt;/option&gt;&lt;option&gt;审核中&lt;/option&gt;&lt;option&gt;审核失败&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
+          &lt;label class=&quot;fr2-filter-field&quot;&gt;人审状态&lt;select class=&quot;fr2-input&quot; id=&quot;fr2AuditHuman&quot;&gt;&lt;option value=&quot;&quot;&gt;全部&lt;/option&gt;&lt;option selected&gt;待审核&lt;/option&gt;&lt;option&gt;审核完成-通过&lt;/option&gt;&lt;option&gt;审核完成-拒绝&lt;/option&gt;&lt;option&gt;自动通过&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;
+          &lt;label class=&quot;fr2-filter-field&quot;&gt;剧 ID&lt;input class=&quot;fr2-input&quot; id=&quot;fr2AuditDramaId&quot; placeholder=&quot;请输入剧 ID&quot;&gt;&lt;/label&gt;
+          &lt;label class=&quot;fr2-filter-field&quot;&gt;剧名称&lt;input class=&quot;fr2-input&quot; id=&quot;fr2AuditDramaName&quot; placeholder=&quot;请输入剧名称&quot;&gt;&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;fr2-filter-actions&quot;&gt;&lt;button class=&quot;fr2-btn primary&quot; id=&quot;fr2AuditSearch&quot; type=&quot;button&quot;&gt;查询&lt;/button&gt;&lt;button class=&quot;fr2-btn&quot; id=&quot;fr2AuditReset&quot; type=&quot;button&quot;&gt;重置&lt;/button&gt;&lt;span class=&quot;fr2-sort-note&quot;&gt;排序：优先按人审时间倒序；人审时间相同时按机审时间倒序&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;fr2-table-wrap&quot;&gt;
+          &lt;table class=&quot;fr2-table&quot;&gt;
+            &lt;thead&gt;&lt;tr&gt;&lt;th&gt;剧 ID&lt;/th&gt;&lt;th&gt;剧名称&lt;/th&gt;&lt;th&gt;机审状态&lt;/th&gt;&lt;th&gt;人审状态&lt;/th&gt;&lt;th&gt;操作&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+            &lt;tbody id=&quot;fr2AuditRows&quot;&gt;&lt;/tbody&gt;
+          &lt;/table&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
   &lt;section class=&quot;fr2-scene&quot; id=&quot;fr2ResultScene&quot; hidden&gt;
-    &lt;div class=&quot;fr2-result-head&quot;&gt;&lt;button class=&quot;fr2-btn&quot; id=&quot;fr2BackFromResult&quot; type=&quot;button&quot;&gt;← 返回无字幕片库&lt;/button&gt;&lt;span class=&quot;fr2-current&quot;&gt;剧 ID：N411857 · Backseat Swap: Trapped with His Best Friend&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;fr2-result-head&quot;&gt;&lt;button class=&quot;fr2-btn&quot; id=&quot;fr2BackFromResult&quot; type=&quot;button&quot;&gt;← 返回无字幕片库&lt;/button&gt;&lt;span class=&quot;fr2-current&quot;&gt;剧 ID：&lt;span id=&quot;fr2ResultDramaId&quot;&gt;N411857&lt;/span&gt; · &lt;span id=&quot;fr2ResultDramaName&quot;&gt;Backseat Swap: Trapped with His Best Friend&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
   &lt;div class=&quot;fr2-page&quot;&gt;
     &lt;section class=&quot;fr2-video-column&quot; aria-label=&quot;完整视频播放器&quot;&gt;
       &lt;div class=&quot;fr2-video&quot;&gt;&lt;div class=&quot;fr2-video-shade&quot;&gt;&lt;/div&gt;&lt;div class=&quot;fr2-video-top&quot;&gt;&lt;span id=&quot;fr2VideoTitle&quot;&gt;第 1 集完整视频&lt;/span&gt;&lt;span id=&quot;fr2VideoState&quot;&gt;机审拒绝&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;fr2-video-center&quot;&gt;&lt;button class=&quot;fr2-play&quot; id=&quot;fr2Play&quot; type=&quot;button&quot; aria-label=&quot;播放视频&quot;&gt;▶&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;fr2-video-bottom&quot;&gt;&lt;div class=&quot;fr2-subtitle&quot; id=&quot;fr2Subtitle&quot;&gt;has breached the perimeter!&lt;/div&gt;&lt;div class=&quot;fr2-progress&quot;&gt;&lt;div class=&quot;fr2-progress-fill&quot; id=&quot;fr2VideoProgress&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;fr2-video-time&quot;&gt;&lt;span id=&quot;fr2CurrentTime&quot;&gt;01:20&lt;/span&gt;&lt;span id=&quot;fr2TotalTime&quot;&gt;04:54&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
@@ -2053,7 +2091,15 @@ html&gt;body{padding:0}&lt;/style&gt;
       const root=document.getElementById(&#x27;frameReviewDemoV2&#x27;); if(!root)return; const $=s=&gt;root.querySelector(s);
       const failureData={1:{labels:[&#x27;暴恐 · 暴恐场景 · 爆炸&#x27;,&#x27;暴恐 · 暴恐场景 · 重度血腥&#x27;],frames:[{id:&#x27;1-1&#x27;,time:&#x27;00:42.120&#x27;,second:42,labels:[&#x27;暴恐&#x27;,&#x27;爆炸&#x27;],confidence:&#x27;96%&#x27;,shot:&#x27;base&#x27;},{id:&#x27;1-2&#x27;,time:&#x27;02:10.340&#x27;,second:130,labels:[&#x27;暴恐&#x27;,&#x27;重度血腥&#x27;],confidence:&#x27;94%&#x27;,shot:&#x27;alt&#x27;},{id:&#x27;1-3&#x27;,time:&#x27;03:31.080&#x27;,second:211,labels:[&#x27;暴恐&#x27;,&#x27;人体肢体伤害&#x27;],confidence:&#x27;91%&#x27;,shot:&#x27;third&#x27;}]},27:{labels:[&#x27;暴恐 · 血腥场景 · 人体血腥特写&#x27;,&#x27;暴恐 · 暴恐场景 · 重度血腥&#x27;],frames:[{id:&#x27;27-1&#x27;,time:&#x27;00:36.600&#x27;,second:36,labels:[&#x27;暴恐&#x27;,&#x27;人体血腥特写&#x27;],confidence:&#x27;93%&#x27;,shot:&#x27;alt&#x27;}]},48:{labels:[&#x27;暴恐 · 暴恐场景 · 爆炸&#x27;],frames:[{id:&#x27;48-1&#x27;,time:&#x27;00:48.220&#x27;,second:48,labels:[&#x27;暴恐&#x27;,&#x27;爆炸&#x27;],confidence:&#x27;95%&#x27;,shot:&#x27;base&#x27;},{id:&#x27;48-2&#x27;,time:&#x27;01:32.510&#x27;,second:92,labels:[&#x27;暴恐&#x27;,&#x27;危险动作&#x27;],confidence:&#x27;89%&#x27;,shot:&#x27;third&#x27;}]},52:{labels:[&#x27;暴恐 · 暴恐场景 · 重度血腥&#x27;],frames:[{id:&#x27;52-1&#x27;,time:&#x27;01:07.440&#x27;,second:67,labels:[&#x27;暴恐&#x27;,&#x27;重度血腥&#x27;],confidence:&#x27;92%&#x27;,shot:&#x27;alt&#x27;}]}};
       const durations=[&#x27;4:54&#x27;,&#x27;2:20&#x27;,&#x27;1:30&#x27;,&#x27;0:54&#x27;,&#x27;1:49&#x27;,&#x27;2:29&#x27;,&#x27;3:04&#x27;,&#x27;3:03&#x27;,&#x27;2:14&#x27;,&#x27;1:59&#x27;,&#x27;1:06&#x27;,&#x27;2:17&#x27;,&#x27;1:07&#x27;,&#x27;1:18&#x27;,&#x27;1:19&#x27;,&#x27;1:49&#x27;,&#x27;1:05&#x27;,&#x27;1:37&#x27;,&#x27;1:08&#x27;,&#x27;1:20&#x27;,&#x27;1:36&#x27;,&#x27;1:01&#x27;,&#x27;2:07&#x27;,&#x27;1:08&#x27;,&#x27;0:54&#x27;,&#x27;0:46&#x27;,&#x27;0:56&#x27;,&#x27;1:35&#x27;,&#x27;1:20&#x27;,&#x27;1:28&#x27;,&#x27;1:28&#x27;,&#x27;2:25&#x27;,&#x27;1:12&#x27;,&#x27;1:54&#x27;,&#x27;1:26&#x27;,&#x27;1:51&#x27;,&#x27;1:55&#x27;,&#x27;1:51&#x27;,&#x27;3:16&#x27;,&#x27;1:34&#x27;,&#x27;1:29&#x27;,&#x27;1:39&#x27;,&#x27;1:38&#x27;,&#x27;1:40&#x27;,&#x27;1:47&#x27;,&#x27;1:56&#x27;,&#x27;3:15&#x27;,&#x27;2:09&#x27;,&#x27;2:19&#x27;,&#x27;2:26&#x27;,&#x27;1:50&#x27;,&#x27;2:09&#x27;,&#x27;2:05&#x27;,&#x27;3:25&#x27;,&#x27;1:22&#x27;,&#x27;2:26&#x27;,&#x27;1:02&#x27;,&#x27;3:41&#x27;];
-      const defaults={version:4,scene:&#x27;list&#x27;,newRow:null,episode:1,playing:false,speed:1,decisions:{&#x27;1-1&#x27;:&#x27;maintain&#x27;,&#x27;1-2&#x27;:&#x27;pass&#x27;,&#x27;27-1&#x27;:&#x27;pass&#x27;,&#x27;48-1&#x27;:&#x27;maintain&#x27;,&#x27;48-2&#x27;:&#x27;pass&#x27;},reasons:{&#x27;1-2&#x27;:&#x27;剧情中的模拟特效画面，不构成真实血腥展示。&#x27;,&#x27;27-1&#x27;:&#x27;医疗剧情必要画面，展示时间短且无感官刺激。&#x27;,&#x27;48-2&#x27;:&#x27;危险动作由特效完成，未展示真实伤害。&#x27;},reasonFrame:null};
+      const auditData=[
+        {id:&#x27;N411857&#x27;,name:&#x27;Backseat Swap: Trapped with His Best Friend&#x27;,machine:&#x27;审核完成-拒绝&#x27;,machineType:&#x27;fail&#x27;,human:&#x27;待审核&#x27;,humanType:&#x27;pending&#x27;,machineTime:&#x27;2026-11-02 16:20&#x27;,humanTime:&#x27;&#x27;,review:true},
+        {id:&#x27;N411862&#x27;,name:&#x27;Falling for the Forbidden Heir&#x27;,machine:&#x27;审核完成-拒绝&#x27;,machineType:&#x27;fail&#x27;,human:&#x27;待审核&#x27;,humanType:&#x27;pending&#x27;,machineTime:&#x27;2026-11-02 17:08&#x27;,humanTime:&#x27;&#x27;,review:true},
+        {id:&#x27;N411859&#x27;,name:&#x27;Love Beyond the Contract&#x27;,machine:&#x27;审核完成-拒绝&#x27;,machineType:&#x27;fail&#x27;,human:&#x27;审核完成-拒绝&#x27;,humanType:&#x27;fail&#x27;,machineTime:&#x27;2026-11-02 15:16&#x27;,humanTime:&#x27;2026-11-02 17:36&#x27;,review:true},
+        {id:&#x27;N411863&#x27;,name:&#x27;A Second Chance at Midnight&#x27;,machine:&#x27;审核完成-拒绝&#x27;,machineType:&#x27;fail&#x27;,human:&#x27;审核完成-通过&#x27;,humanType:&#x27;pass&#x27;,machineTime:&#x27;2026-11-02 14:51&#x27;,humanTime:&#x27;2026-11-02 16:58&#x27;,review:true},
+        {id:&#x27;N411858&#x27;,name:&#x27;The Heiress Returns&#x27;,machine:&#x27;审核完成-通过&#x27;,machineType:&#x27;pass&#x27;,human:&#x27;自动通过&#x27;,humanType:&#x27;pass&#x27;,machineTime:&#x27;2026-11-02 15:48&#x27;,humanTime:&#x27;2026-11-02 15:48&#x27;,review:false},
+        {id:&#x27;N411860&#x27;,name:&#x27;Secret Heir&#x27;,machine:&#x27;审核失败&#x27;,machineType:&#x27;fail&#x27;,human:&#x27;空&#x27;,humanType:&#x27;empty&#x27;,machineTime:&#x27;2026-11-02 14:42&#x27;,humanTime:&#x27;&#x27;,review:false}
+      ];
+      const defaults={version:5,scene:&#x27;list&#x27;,newRow:null,episode:1,playing:false,speed:1,resultSource:&#x27;list&#x27;,reviewDrama:{id:&#x27;N411857&#x27;,name:&#x27;Backseat Swap: Trapped with His Best Friend&#x27;},decisions:{&#x27;1-1&#x27;:&#x27;maintain&#x27;,&#x27;1-2&#x27;:&#x27;pass&#x27;,&#x27;27-1&#x27;:&#x27;pass&#x27;,&#x27;48-1&#x27;:&#x27;maintain&#x27;,&#x27;48-2&#x27;:&#x27;pass&#x27;},reasons:{&#x27;1-2&#x27;:&#x27;剧情中的模拟特效画面，不构成真实血腥展示。&#x27;,&#x27;27-1&#x27;:&#x27;医疗剧情必要画面，展示时间短且无感官刺激。&#x27;,&#x27;48-2&#x27;:&#x27;危险动作由特效完成，未展示真实伤害。&#x27;},reasonFrame:null};
       let state=JSON.parse(JSON.stringify(defaults)),playTimer=null; const failing=Object.keys(failureData).map(Number);
       const parseDuration=v=&gt;{const [m,s]=v.split(&#x27;:&#x27;).map(Number);return m*60+s}; const fmt=v=&gt;`${String(Math.floor(Math.max(0,v)/60)).padStart(2,&#x27;0&#x27;)}:${String(Math.floor(Math.max(0,v))%60).padStart(2,&#x27;0&#x27;)}`;
       const frames=no=&gt;failureData[no]?failureData[no].frames:[]; const reviewed=no=&gt;frames(no).filter(f=&gt;state.decisions[f.id]).length;
@@ -2064,13 +2110,13 @@ html&gt;body{padding:0}&lt;/style&gt;
       const iconPair=(role,value)=&gt;`&lt;span class=&quot;fr2-audit-line ${value}&quot; aria-label=&quot;${outcomeText(value,role===&#x27;machine&#x27;?&#x27;机审&#x27;:&#x27;人审&#x27;)}&quot;&gt;&lt;i class=&quot;fr2-role-icon&quot; data-lucide=&quot;${role===&#x27;machine&#x27;?&#x27;bot&#x27;:&#x27;user&#x27;}&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;${value===&#x27;empty&#x27;?&#x27;&lt;span class=&quot;fr2-result-empty&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&#x27;:`&lt;i class=&quot;fr2-result-icon&quot; data-lucide=&quot;${value===&#x27;pass&#x27;?&#x27;check&#x27;:&#x27;x&#x27;}&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;`}&lt;/span&gt;`;
       const refreshIcons=()=&gt;{if(window.lucide&amp;&amp;typeof window.lucide.createIcons===&#x27;function&#x27;)window.lucide.createIcons({attrs:{width:13,height:13}})};
       function persist(){if(window.openai&amp;&amp;typeof window.openai.setWidgetState===&#x27;function&#x27;)window.openai.setWidgetState({modelContent:{episode:state.episode,doneEpisodes:doneCount(),totalEpisodes:58},privateContent:state}).catch(()=&gt;{})}
-      const saved=window.openai&amp;&amp;window.openai.widgetState&amp;&amp;window.openai.widgetState.privateContent;if(saved&amp;&amp;saved.version===4)state={...defaults,...saved,decisions:saved.decisions||{},reasons:saved.reasons||{},playing:false,reasonFrame:null};
+      const saved=window.openai&amp;&amp;window.openai.widgetState&amp;&amp;window.openai.widgetState.privateContent;if(saved&amp;&amp;saved.version===5)state={...defaults,...saved,decisions:saved.decisions||{},reasons:saved.reasons||{},reviewDrama:saved.reviewDrama||defaults.reviewDrama,playing:false,reasonFrame:null};
       function toast(message){const n=$(&#x27;#fr2Toast&#x27;);n.textContent=message;n.classList.add(&#x27;show&#x27;);clearTimeout(toast.timer);toast.timer=setTimeout(()=&gt;n.classList.remove(&#x27;show&#x27;),1800)}
       const esc=value=&gt;String(value).replace(/[&amp;&lt;&gt;&quot;&#x27;]/g,char=&gt;({&#x27;&amp;&#x27;:&#x27;&amp;amp;&#x27;,&#x27;&lt;&#x27;:&#x27;&amp;lt;&#x27;,&#x27;&gt;&#x27;:&#x27;&amp;gt;&#x27;,&#x27;&quot;&#x27;:&#x27;&amp;quot;&#x27;,&quot;&#x27;&quot;:&#x27;&amp;#39;&#x27;}[char]));
       function statusBadge(text,type){return `&lt;span class=&quot;fr2-list-status ${type}&quot;&gt;${text||&#x27;空&#x27;}&lt;/span&gt;`}
       function renderList(){
         const rows=[
-          {id:&#x27;N411857&#x27;,name:&#x27;Backseat Swap: Trapped with His Best Friend&#x27;,process:&#x27;已完成&#x27;,machine:&#x27;审核完成-拒绝&#x27;,machineType:&#x27;fail&#x27;,human:&#x27;空&#x27;,humanType:&#x27;empty&#x27;,time:&#x27;2026-11-02 16:20&#x27;,review:true},
+          {id:&#x27;N411857&#x27;,name:&#x27;Backseat Swap: Trapped with His Best Friend&#x27;,process:&#x27;已完成&#x27;,machine:&#x27;审核完成-拒绝&#x27;,machineType:&#x27;fail&#x27;,human:&#x27;待审核&#x27;,humanType:&#x27;pending&#x27;,time:&#x27;2026-11-02 16:20&#x27;,review:true},
           {id:&#x27;N411858&#x27;,name:&#x27;The Heiress Returns&#x27;,process:&#x27;已完成&#x27;,machine:&#x27;审核完成-通过&#x27;,machineType:&#x27;pass&#x27;,human:&#x27;自动通过&#x27;,humanType:&#x27;pass&#x27;,time:&#x27;2026-11-02 15:48&#x27;},
           {id:&#x27;N411859&#x27;,name:&#x27;Love Beyond the Contract&#x27;,process:&#x27;已完成&#x27;,machine:&#x27;审核完成-拒绝&#x27;,machineType:&#x27;fail&#x27;,human:&#x27;审核完成-拒绝&#x27;,humanType:&#x27;fail&#x27;,time:&#x27;2026-11-02 15:16&#x27;},
           {id:&#x27;N411860&#x27;,name:&#x27;Secret Heir&#x27;,process:&#x27;已完成&#x27;,machine:&#x27;审核失败&#x27;,machineType:&#x27;fail&#x27;,human:&#x27;空&#x27;,humanType:&#x27;empty&#x27;,time:&#x27;2026-11-02 14:42&#x27;},
@@ -2078,6 +2124,11 @@ html&gt;body{padding:0}&lt;/style&gt;
         ];
         if(state.newRow)rows.unshift(state.newRow);
         $(&#x27;#fr2ListRows&#x27;).innerHTML=rows.map(row=&gt;`&lt;tr&gt;&lt;td&gt;${esc(row.id)}&lt;/td&gt;&lt;td&gt;${esc(row.name)}&lt;/td&gt;&lt;td&gt;${statusBadge(row.process,&#x27;pass&#x27;)}&lt;/td&gt;&lt;td&gt;${statusBadge(row.machine,row.machineType)}&lt;/td&gt;&lt;td&gt;${statusBadge(row.human,row.humanType)}&lt;/td&gt;&lt;td&gt;${esc(row.time)}&lt;/td&gt;&lt;td&gt;&lt;button class=&quot;fr2-text-link&quot; type=&quot;button&quot;&gt;详情&lt;/button&gt;${row.review?&#x27;&lt;button class=&quot;fr2-text-link&quot; type=&quot;button&quot; data-open-result&gt;人工复审&lt;/button&gt;&#x27;:&#x27;&lt;button class=&quot;fr2-text-link&quot; type=&quot;button&quot; disabled&gt;人工复审&lt;/button&gt;&#x27;}&lt;/td&gt;&lt;/tr&gt;`).join(&#x27;&#x27;);
+      }
+      function renderAudit(){
+        const machine=$(&#x27;#fr2AuditMachine&#x27;).value,human=$(&#x27;#fr2AuditHuman&#x27;).value,id=$(&#x27;#fr2AuditDramaId&#x27;).value.trim().toLowerCase(),name=$(&#x27;#fr2AuditDramaName&#x27;).value.trim().toLowerCase();
+        const rows=auditData.filter(row=&gt;(!machine||row.machine===machine)&amp;&amp;(!human||row.human===human)&amp;&amp;(!id||row.id.toLowerCase().includes(id))&amp;&amp;(!name||row.name.toLowerCase().includes(name))).sort((a,b)=&gt;(b.humanTime||&#x27;&#x27;).localeCompare(a.humanTime||&#x27;&#x27;)||(b.machineTime||&#x27;&#x27;).localeCompare(a.machineTime||&#x27;&#x27;));
+        $(&#x27;#fr2AuditRows&#x27;).innerHTML=rows.length?rows.map(row=&gt;`&lt;tr&gt;&lt;td&gt;${esc(row.id)}&lt;/td&gt;&lt;td&gt;${esc(row.name)}&lt;/td&gt;&lt;td&gt;${statusBadge(row.machine,row.machineType)}&lt;/td&gt;&lt;td&gt;${statusBadge(row.human,row.humanType)}&lt;/td&gt;&lt;td&gt;${row.review?`&lt;button class=&quot;fr2-text-link&quot; type=&quot;button&quot; data-audit-review data-id=&quot;${esc(row.id)}&quot; data-name=&quot;${esc(row.name)}&quot;&gt;人工复审&lt;/button&gt;`:&#x27;&lt;button class=&quot;fr2-text-link&quot; type=&quot;button&quot; disabled&gt;人工复审&lt;/button&gt;&#x27;}&lt;button class=&quot;fr2-text-link&quot; type=&quot;button&quot; data-export-audit data-id=&quot;${esc(row.id)}&quot;&gt;导出审核结果&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;`).join(&#x27;&#x27;):&#x27;&lt;tr&gt;&lt;td class=&quot;fr2-empty-table&quot; colspan=&quot;5&quot;&gt;暂无符合条件的数据&lt;/td&gt;&lt;/tr&gt;&#x27;;
       }
       function showScene(name,save=true){
         state.scene=name;
@@ -2087,6 +2138,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         $(&#x27;#fr2ReviewModal&#x27;).classList.remove(&#x27;show&#x27;);
         if(name!==&#x27;result&#x27;)stop();
         if(name===&#x27;list&#x27;)renderList();
+        if(name===&#x27;audit&#x27;)renderAudit();
         if(name===&#x27;result&#x27;)renderAll();
         if(save)persist();
       }
@@ -2094,7 +2146,7 @@ html&gt;body{padding:0}&lt;/style&gt;
       function renderVideo(){const machine=machineOutcome(state.episode);$(&#x27;#fr2VideoTitle&#x27;).textContent=`第 ${state.episode} 集完整视频`;$(&#x27;#fr2VideoState&#x27;).textContent=outcomeText(machine,&#x27;机审&#x27;);$(&#x27;#fr2TotalTime&#x27;).textContent=durations[state.episode-1];$(&#x27;#fr2CurrentTime&#x27;).textContent=machine===&#x27;fail&#x27;?&#x27;01:20&#x27;:&#x27;00:36&#x27;;$(&#x27;#fr2Subtitle&#x27;).textContent=machine===&#x27;fail&#x27;?&#x27;has breached the perimeter!&#x27;:&#x27;All stations, this is Command.&#x27;;$(&#x27;#fr2Play&#x27;).textContent=state.playing?&#x27;❚❚&#x27;:&#x27;▶&#x27;}
       function renderSummary(){const machine=machineOutcome(state.episode),human=humanOutcome(state.episode);$(&#x27;#fr2DoneSummary&#x27;).textContent=`已完成 ${doneCount()} 集`;$(&#x27;#fr2TodoSummary&#x27;).textContent=`未完成 ${58-doneCount()} 集`;$(&#x27;#fr2CurrentSummary&#x27;).textContent=`第 ${state.episode} 集 · ${outcomeText(machine,&#x27;机审&#x27;)} · ${outcomeText(human,&#x27;人审&#x27;)}`}
       function renderRows(){$(&#x27;#fr2ViolationRows&#x27;).innerHTML=failing.map(no=&gt;{const data=failureData[no],count=reviewed(no),human=humanOutcome(no);return `&lt;button class=&quot;fr2-row ${state.episode===no?&#x27;active&#x27;:&#x27;&#x27;}&quot; type=&quot;button&quot; data-review-episode=&quot;${no}&quot;&gt;&lt;span class=&quot;fr2-episode-tag&quot;&gt;第${no}集&lt;/span&gt;&lt;span class=&quot;fr2-tags&quot;&gt;${data.labels.map(x=&gt;`&lt;span class=&quot;fr2-tag&quot;&gt;${x}&lt;/span&gt;`).join(&#x27;&#x27;)}&lt;/span&gt;&lt;span class=&quot;fr2-frame-progress&quot;&gt;${count}/${data.frames.length} 帧&lt;/span&gt;${iconPair(&#x27;human&#x27;,human)}&lt;/button&gt;`}).join(&#x27;&#x27;)}
-      function renderAll(){renderEpisodes();renderVideo();renderSummary();renderRows();$(&#x27;#fr2Speed&#x27;).value=String(state.speed);refreshIcons()}
+      function renderAll(){renderEpisodes();renderVideo();renderSummary();renderRows();$(&#x27;#fr2Speed&#x27;).value=String(state.speed);$(&#x27;#fr2ResultDramaId&#x27;).textContent=state.reviewDrama.id;$(&#x27;#fr2ResultDramaName&#x27;).textContent=state.reviewDrama.name;$(&#x27;#fr2BackFromResult&#x27;).textContent=state.resultSource===&#x27;audit&#x27;?&#x27;← 返回人工审核&#x27;:&#x27;← 返回无字幕片库&#x27;;refreshIcons()}
       function stop(){state.playing=false;clearInterval(playTimer);playTimer=null} function selectEpisode(no){state.episode=no;stop();renderAll();persist()}
       function openReview(no){state.episode=no;state.reasonFrame=null;renderAll();renderModal();$(&#x27;#fr2ReviewModal&#x27;).classList.add(&#x27;show&#x27;);persist()} function closeReview(){$(&#x27;#fr2ReviewModal&#x27;).classList.remove(&#x27;show&#x27;);state.reasonFrame=null}
       const decisionLabel=v=&gt;v===&#x27;maintain&#x27;?&#x27;维持机审&#x27;:v===&#x27;pass&#x27;?&#x27;人审通过&#x27;:&#x27;待复审&#x27;;
@@ -2108,8 +2160,15 @@ html&gt;body{padding:0}&lt;/style&gt;
       $(&#x27;#fr2GoAdd&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;showScene(&#x27;add&#x27;));
       $(&#x27;#fr2BackFromAdd&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;showScene(&#x27;list&#x27;));
       $(&#x27;#fr2CancelAdd&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;showScene(&#x27;list&#x27;));
-      $(&#x27;#fr2BackFromResult&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;showScene(&#x27;list&#x27;));
-      $(&#x27;#fr2ListRows&#x27;).addEventListener(&#x27;click&#x27;,event=&gt;{if(event.target.closest(&#x27;[data-open-result]&#x27;)){state.episode=1;showScene(&#x27;result&#x27;)}});
+      $(&#x27;#fr2BackFromResult&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;showScene(state.resultSource===&#x27;audit&#x27;?&#x27;audit&#x27;:&#x27;list&#x27;));
+      $(&#x27;#fr2ListRows&#x27;).addEventListener(&#x27;click&#x27;,event=&gt;{if(event.target.closest(&#x27;[data-open-result]&#x27;)){state.episode=1;state.resultSource=&#x27;list&#x27;;state.reviewDrama={id:&#x27;N411857&#x27;,name:&#x27;Backseat Swap: Trapped with His Best Friend&#x27;};showScene(&#x27;result&#x27;)}});
+      $(&#x27;#fr2AuditSearch&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{renderAudit();toast(&#x27;已按筛选条件查询&#x27;)});
+      $(&#x27;#fr2AuditReset&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{$(&#x27;#fr2AuditMachine&#x27;).value=&#x27;审核完成-拒绝&#x27;;$(&#x27;#fr2AuditHuman&#x27;).value=&#x27;待审核&#x27;;$(&#x27;#fr2AuditDramaId&#x27;).value=&#x27;&#x27;;$(&#x27;#fr2AuditDramaName&#x27;).value=&#x27;&#x27;;renderAudit();toast(&#x27;已恢复默认筛选条件&#x27;)});
+      $(&#x27;#fr2AuditRows&#x27;).addEventListener(&#x27;click&#x27;,event=&gt;{
+        const review=event.target.closest(&#x27;[data-audit-review]&#x27;),exportButton=event.target.closest(&#x27;[data-export-audit]&#x27;);
+        if(review){state.episode=1;state.resultSource=&#x27;audit&#x27;;state.reviewDrama={id:review.dataset.id,name:review.dataset.name};showScene(&#x27;result&#x27;)}
+        if(exportButton)toast(`已导出 ${exportButton.dataset.id}：剧名、剧 ID、集序号、问题帧截图、时间位置、机审结果、人审结果、人审意见`);
+      });
       root.querySelectorAll(&#x27;input[name=&quot;safetyAudit&quot;]&#x27;).forEach(input=&gt;input.addEventListener(&#x27;change&#x27;,()=&gt;{$(&#x27;#fr2AuditHelp&#x27;).textContent=input.value===&#x27;yes&#x27;?&#x27;选择“是”后，新增成功即发起机审；送审失败不回滚新增结果。&#x27;:&#x27;选择“否”后不送机审，后续不支持手动发起机审。&#x27;}));
       $(&#x27;#fr2SubmitAdd&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{
         const name=$(&#x27;#fr2DramaName&#x27;).value.trim();
