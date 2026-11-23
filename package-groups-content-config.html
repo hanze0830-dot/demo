@@ -11,6 +11,7 @@
     @media(max-width:900px){.app{min-width:0}.sidebar{display:none}.brand{width:auto}.filters,.form-grid,.reserve-grid{grid-template-columns:1fr}.demo-strip{align-items:flex-start;flex-direction:column}.page{padding:12px}.selector-grid{grid-template-columns:1fr}.arrow-col{display:none}.cover-row{grid-template-columns:1fr}.cover-label{text-align:left}.modal-form,.rights-form{grid-template-columns:1fr}.modal-form>label,.rights-form>.form-label{text-align:left}.impact{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.form-label{text-align:left}.top-link{display:none}}
 
     .scope-fields{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1080px}.scope-field{min-width:0}.scope-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;color:#43545d;font-weight:600}.scope-label small{font-size:12px;font-weight:400;color:#87939a}.scope-picker{position:relative;min-width:0}.scope-shell{display:flex;align-items:center;gap:6px;min-height:40px;padding:5px 10px;border:1px solid #ccd6db;border-radius:5px;background:#fff;transition:border-color .15s,box-shadow .15s}.scope-picker.open .scope-shell,.scope-shell:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px rgba(18,169,154,.09)}.scope-value{flex:1;min-width:0}.scope-tags{display:flex;gap:5px;flex-wrap:wrap;max-height:82px;overflow:auto}.scope-tags:empty{display:none}.scope-tag{display:inline-flex;align-items:center;gap:5px;max-width:100%;padding:2px 7px;background:#eaf6f4;color:#17776d;border:1px solid #d0eae5;border-radius:4px;line-height:20px}.scope-tag span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.scope-tag button{border:0;background:none;color:#5b928b;padding:0 1px;line-height:18px;font-size:16px}.scope-search{display:block;width:100%;min-width:0;height:28px;border:0;padding:0 2px;color:var(--text);background:transparent;outline:none}.scope-tags:not(:empty)+.scope-search{margin-top:2px}.scope-search::placeholder{color:#98a4ab}.scope-toggle{display:grid;place-items:center;border:0;background:none;color:#8a989f;width:23px;height:28px;padding:0;flex:none}.scope-toggle svg{width:14px;height:14px;transition:transform .15s}.scope-picker.open .scope-toggle svg{transform:rotate(180deg)}.scope-dropdown{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:45;background:#fff;border:1px solid #dce5e8;border-radius:6px;box-shadow:0 8px 26px rgba(34,55,66,.14);overflow:hidden}.scope-dropdown[hidden]{display:none!important}.scope-list{max-height:244px;overflow:auto;padding:5px}.scope-option{display:flex;align-items:flex-start;gap:9px;padding:9px;border-radius:4px;cursor:pointer}.scope-option:hover,.scope-option:focus-within{background:#f2f8f7}.scope-option.selected{background:#edf8f5}.scope-option input{margin:4px 0 0;accent-color:var(--teal);flex:none}.scope-option-copy{flex:1;min-width:0}.scope-option-title{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#344650;font-weight:500}.scope-option-title small{font-weight:400;color:#7e8e96;font-size:12px;white-space:nowrap}.scope-option-detail{display:block;color:#8a979e;font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.scope-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e8edef;padding:7px 12px;color:#86949b;font-size:12px}.scope-footer button{border:0;background:none;color:var(--teal-dark);padding:2px 0}.scope-empty{text-align:center;color:#8b989f;padding:24px 12px}.scope-clear{border:0;background:none;color:#84939a;padding:0;font-weight:400;font-size:12px}.scope-picker[data-locked="true"] .scope-shell{background:#f3f5f6;opacity:.75}.scope-picker button:disabled{cursor:not-allowed;opacity:.5}.scope-hint{max-width:1080px;color:#87939a;font-size:12px;margin-top:8px}
+    #groupModal .modal{overflow:visible}#groupModal .scope-list{max-height:min(244px,calc(45vh - 50px))}
     @media(max-width:900px){.scope-fields{grid-template-columns:1fr;gap:14px}}
   </style>
 </head>
@@ -97,7 +98,7 @@
   </div>
 </div>
 
-<div class="modal-mask" id="groupModal"><div class="modal"><div class="modal-head"><span id="groupModalTitle">新增包名分组</span><button class="close" data-close="groupModal">×</button></div><div class="modal-body"><div class="modal-form"><label><span class="req">*</span>分组名称</label><input class="control" id="groupName" maxlength="50" placeholder="全局唯一，最多50字符"><label><span class="req">*</span>分组成员</label><div><div class="selector-box"><div class="selector-head"><span>选择包名</span><input class="control" id="memberSearch" style="width:180px" placeholder="搜索包名/编码"></div><div class="selector-list" id="groupMemberOptions"></div></div><div class="help">选择已归属其他分组的包名，保存时需确认转移。</div></div><label>备注</label><textarea id="groupRemark" style="min-height:72px" placeholder="选填"></textarea></div></div><div class="modal-foot"><button class="btn" data-close="groupModal">取消</button><button class="btn primary" id="submitGroup">保存</button></div></div></div>
+<div class="modal-mask" id="groupModal"><div class="modal"><div class="modal-head"><span id="groupModalTitle">新增包名分组</span><button class="close" data-close="groupModal">×</button></div><div class="modal-body"><div class="modal-form"><label><span class="req">*</span>分组名称</label><input class="control" id="groupName" maxlength="50" placeholder="全局唯一，最多50字符"><label for="groupMemberPickerSearch"><span class="req">*</span>分组成员</label><div><div class="scope-picker" id="groupMemberPicker"></div><div class="help">选择已归属其他分组的包名，保存时需确认转移。</div></div><label>备注</label><textarea id="groupRemark" style="min-height:72px" placeholder="选填"></textarea></div></div><div class="modal-foot"><button class="btn" data-close="groupModal">取消</button><button class="btn primary" id="submitGroup">保存</button></div></div></div>
 
 <div class="modal-mask" id="transferModal"><div class="modal"><div class="modal-head"><span>确认转移包名</span><button class="close" data-close="transferModal">×</button></div><div class="modal-body"><div class="notice warn">确认后，所选包名将转入目标分组，相关版权及未执行预约范围随之变化；单包配置保留。</div><div id="transferDetails"></div><div class="help">以下为模拟数据，各分组的关联数量分别展示，不作重复累加。</div></div><div class="modal-foot"><button class="btn" id="backTransfer">返回修改</button><button class="btn primary" id="confirmTransfer">确认转移并保存</button></div></div></div>
 
@@ -130,6 +131,7 @@ const packageCatalog=[
  ['DramaWave KR','demo.dramawave.kr'],['DramaBox Test','demo.dramabox.test'],['未分组示例包','demo.ungrouped']
 ].map(([name,code])=>({name,code}));
 let editingGroupId=null,deletingGroupId=null,pendingGroup=null,nextGroupId=5;
+const selectedGroupMembers=new Set();
 const selectedRightsGroups=new Set([1]),selectedRightsPackages=new Set(['DramaBox Lite','MoboReels']);
 const selectedReserveGroups=new Set([1]),selectedReservePackages=new Set(['DramaBox Lite']);
 function currentGroup(id){return groups.find(g=>g.id===Number(id))}
@@ -146,11 +148,12 @@ function renderGroups(){
 function openGroup(id=null){
  editingGroupId=id;pendingGroup=null;const g=currentGroup(id);
  $('#groupModalTitle').textContent=g?'编辑包名分组':'新增包名分组';
- $('#groupName').value=g?.name||'';$('#groupRemark').value=g?.remark||'';$('#memberSearch').value='';
- $('#groupMemberOptions').innerHTML=packageCatalog.map(p=>{const owner=groups.find(x=>x.members.includes(p.name));return `<label class="check-row" title="${escapeHtml(p.code)}"><input type="checkbox" class="member-check" value="${escapeHtml(p.name)}" ${g?.members.includes(p.name)?'checked':''}> ${escapeHtml(p.name)} <span class="tag gray">${escapeHtml(owner?.name||'未分组')}</span></label>`}).join('');
+ $('#groupName').value=g?.name||'';$('#groupRemark').value=g?.remark||'';
+ selectedGroupMembers.clear();(g?.members||[]).forEach(name=>selectedGroupMembers.add(name));
+ const picker=scopePickers.find(config=>config.id==='groupMemberPicker');
+ $('#groupMemberPickerSearch').value='';renderPickerTags(picker);renderPickerList(picker);setPickerOpen(picker,false);
  showModal('groupModal');
 }
-$('#memberSearch').oninput=()=>{const q=$('#memberSearch').value.trim().toLowerCase();$$('#groupMemberOptions .check-row').forEach(row=>{const p=packageCatalog.find(x=>x.name===row.querySelector('input').value);row.style.display=[p.name,p.code].some(v=>v.toLowerCase().includes(q))?'':'none'})};
 $('#searchGroup').onclick=renderGroups;$('#clearGroup').onclick=()=>{$('#groupSearch').value='';$('#groupPackageSearch').value='';renderGroups()};
 $('#addGroup').onclick=()=>openGroup();
 function saveGroup(){
@@ -162,7 +165,7 @@ function saveGroup(){
  pendingGroup=null;closeModal('groupModal');closeModal('transferModal');refreshGroupViews();toast('分组已保存（本次演示内生效）');
 }
 $('#submitGroup').onclick=()=>{
- const name=$('#groupName').value.trim(),members=$$('.member-check:checked').map(x=>x.value);
+ const name=$('#groupName').value.trim(),members=[...selectedGroupMembers];
  if(!name||name.length>50){toast('请填写50字符以内的分组名称');return}
  if(groups.some(g=>g.id!==editingGroupId&&g.name===name)){toast('分组名称已存在');return}
  if(!members.length){toast('请至少选择一个包名');return}
@@ -171,7 +174,7 @@ $('#submitGroup').onclick=()=>{
  if(!origins.length){saveGroup();return}
  const target=currentGroup(editingGroupId);
  $('#transferDetails').innerHTML=`<div class="summary-box"><strong>目标分组：${escapeHtml(name)}</strong><div class="help">关联版权剧 ${target?.dramas||0} 部 · 未执行预约 ${target?.reserves||0} 条</div></div>`+origins.map(g=>`<div class="summary-box"><strong>${g.members.filter(p=>members.includes(p)).map(escapeHtml).join('、')}</strong><div>原分组：${escapeHtml(g.name)} → ${escapeHtml(name)}</div><div class="help">关联版权剧 ${g.dramas} 部 · 未执行预约 ${g.reserves} 条</div></div>`).join('');
- closeModal('groupModal');showModal('transferModal');
+ setPickerOpen(scopePickers.find(config=>config.id==='groupMemberPicker'),false);closeModal('groupModal');showModal('transferModal');
 };
 $('#backTransfer').onclick=()=>{closeModal('transferModal');showModal('groupModal')};
 $('#confirmTransfer').onclick=saveGroup;
@@ -179,6 +182,7 @@ $('#confirmDelete').onclick=()=>{const index=groups.findIndex(g=>g.id===deleting
 function scopePackages(groupIds,packages){return [...new Set([...groups.filter(g=>groupIds.has(g.id)).flatMap(g=>g.members),...packages])]}
 let reserveScopeLocked=false;
 const scopePickers=[
+ {id:'groupMemberPicker',group:false,set:selectedGroupMembers,classes:'member-check',update:()=>{}},
  {id:'rightsGroupPicker',group:true,set:selectedRightsGroups,classes:'rights-check group-right',update:()=>updateRights()},
  {id:'rightsPackagePicker',group:false,set:selectedRightsPackages,classes:'rights-check pkg-right',update:()=>updateRights()},
  {id:'reserveGroupPicker',group:true,set:selectedReserveGroups,classes:'reserve-range reserve-group',update:()=>updateReservePreview(),reserve:true},
